@@ -49,12 +49,14 @@ function lockScreen(msg=''){unlocked=false;h(`<div class=grow><div class=wk>🔒
 async function unlock(){try{const id=Uint8Array.from(atob(localStorage.getItem('gt_cred')),c=>c.charCodeAt(0));await navigator.credentials.get({publicKey:{challenge:rnd(32),allowCredentials:[{type:'public-key',id,transports:['internal']}],userVerification:'required',timeout:60000}});unlocked=true;home()}catch(e){lockScreen('No se pudo verificar. Probá de nuevo.')}}
 function boot(){if(localStorage.getItem('gt_cred')&&WA)lockScreen();else{unlocked=true;home()}}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(localStorage.getItem('gt_cred')&&WA&&unlocked&&Date.now()-hiddenAt>60000)lockScreen()});
-function ajustes(){const on=!!localStorage.getItem('gt_cred');h(`<h1>⚙️ Ajustes</h1><div class=grow>
+function ajustes(){const on=!!localStorage.getItem('gt_cred');h(`${topBar()}<h1>⚙️ Ajustes</h1><div class=grow>
  ${!WA?'<p class=err>Este navegador no soporta huella/cara. La app abre sin bloqueo.</p>':on?'<p>Huella/cara: <b>ACTIVADO</b></p><button class="big" onclick=bioOff()>Desactivar huella/cara</button>':'<p>Huella/cara: <b>apagado</b></p><button class="big acc" onclick=bioOn()>Activar huella/cara</button>'}
- <p class=muted style="margin:12px 0">Es solo un bloqueo de pantalla: los datos quedan sin cifrar en este celular.</p><button class="big" onclick=exportar()>💾 Exportar respaldo</button></div><button class=big onclick=home()>Inicio</button>`)}
+ <p class=muted style="margin:12px 0">Es solo un bloqueo de pantalla: los datos quedan sin cifrar en este celular.</p><button class="big" onclick=exportar()>💾 Exportar respaldo</button></div>`)}
+function wlabel(){const w=week();return w===0?'Arranca lun 19/10 · Semana 1 de 6':w===7?'Bloque terminado ✅':`Semana ${w} de 6${w===6?' · Descarga':''}`}
+const topBar=()=>`<div class=top><button class=back onclick="clearInterval(TI);home()">⌂ Inicio</button><span class=wl>${wlabel()}</span></div>`;
 // ---------- home ----------
 function home(){const w=week(),dw=new Date().getDay(),hoy=DIAS[dw];
- const wt=w===0?'Arrancás el lunes 19/10':w===7?'Bloque terminado ✅':`Semana ${w} de 6${w===6?' · Descarga':''}`;
+ const wt=w===0?'Arranca lun 19/10<br>Semana 1 de 6':w===7?'Bloque terminado ✅':`Semana ${w} de 6${w===6?' · Descarga':''}`;
  h(`<div class=wk>${wt}</div>${w>=1&&w<=6?`<p class=obj>🎯 ${OBJ[w]}</p>`:''}
  <p class=today>Hoy (${DN[dw]}): <b>${P[hoy]?'Rutina '+hoy:hoy}</b></p><div class=grow></div>
  ${['A','B','C'].map(r=>`<button class="big ${r===hoy?'acc':''}" onclick="resumen('${r}')">${P[r].t}</button>`).join('')}
@@ -63,33 +65,32 @@ function home(){const w=week(),dw=new Date().getDay(),hoy=DIAS[dw];
 // ---------- resumen + guía ----------
 function last(r,i){const l=D.log[r+i]||{};const ks=Object.keys(l).map(Number).sort((a,b)=>b-a);return ks.length?{w:ks[0],kg:l[ks[0]]}:null}
 const short=n=>n.replace(/\s*\(.*?\)/g,'').replace(/,.*$/,'').replace('Final: ','');
-function resumen(r){h(`<h2>${P[r].t}</h2><ol class="sum grow">${P[r].e.map((e,i)=>{const L=last(r,i);return`<li><span>${short(e[0])}</span> <b>${e[1].replace(' por lado',' c/lado').replace(' por pierna',' c/pierna').replace(' (30″ fuerte / 30″ suave)',' × 30″')}${L?` · ${L.kg} kg`:''}</b></li>`}).join('')}</ol>
- <button class="big acc" onclick="start('${r}')">Empezar ▶</button><button class=small onclick=home()>← Inicio</button>`)}
+function resumen(r){h(`${topBar()}<h2>${P[r].t}</h2><ol class="sum grow">${P[r].e.map((e,i)=>{const L=last(r,i);return`<li><span>${short(e[0])}</span> <b>${e[1].replace(' por lado',' c/lado').replace(' por pierna',' c/pierna').replace(' (30″ fuerte / 30″ suave)',' × 30″')}${L?` · ${L.kg} kg`:''}</b></li>`}).join('')}</ol>
+ <button class="big acc" onclick="start('${r}')">Empezar ▶</button>`)}
 function start(r){cur={r,i:0};ex()}
 function ex(){const{r,i}=cur,e=P[r].e[i],w=Math.max(1,Math.min(6,week())),L=last(r,i),val=(D.log[r+i]||{})[w]??(L?L.kg:''),fin=r==='C'&&i===7;
- h(`<p class="muted sm">${P[r].t} · ${i+1}/${P[r].e.length}</p><h2>${e[0]}</h2>
+ h(`${topBar()}<p class="muted sm">${P[r].t} · ${i+1}/${P[r].e.length}</p><h2>${e[0]}</h2>
  <div class=sr>${e[1]}</div><p class=info>⏱️ ${e[2]} · RPE ${e[3]}<br>🔄 ${e[4]}</p><div class=grow><p class=note>${e[5]}</p></div>
  ${fin?'':`<div class=kgrow><div class=lastbox>Última<br><b>${L?L.kg:'—'}</b></div><input id=kg class=kg type=text inputmode=decimal value="${val}" placeholder="kg"><span class=kgl>kg</span></div>`}
  <div class=row><a class="mid vid" href="${e[6]}" target=_blank rel=noopener>Ver video ▶</a>${e[2]!=='—'?`<button class=mid onclick="timer('${e[2]}')">⏱️ ${e[2]}</button>`:''}</div>
- <button class="big acc" onclick=done()>Listo → siguiente</button>
- <div class=row><button class=mid onclick=nav(-1)>← Anterior</button><button class=mid onclick=nav(1)>Siguiente →</button></div>`)}
+ <div class=row><button class="mid nb" onclick=nav(-1)>← Anterior</button><button class="mid nb acc" onclick=done()>Siguiente →</button></div>`)}
 let TI=null;function timer(s){clearInterval(TI);let t=s.includes('′')?parseInt(s)*60:parseInt(s);const f=()=>`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
- h(`<p class=today>Descanso</p><div class="grow tbig" id=tt>${f()}</div><button class="big acc" onclick="clearInterval(TI);ex()">Volver al ejercicio</button>`);
+ h(`${topBar()}<p class=today>Descanso</p><div class="grow tbig" id=tt>${f()}</div><button class="big acc" onclick="clearInterval(TI);ex()">Volver al ejercicio</button>`);
  TI=setInterval(()=>{t--;const el=$('tt');if(!el)return clearInterval(TI);el.textContent=t>0?f():'¡Dale! ✅';if(t<=0){clearInterval(TI);navigator.vibrate&&navigator.vibrate([400,200,400])}},1000)}
 const num=v=>parseFloat(String(v).replace(',','.'));
 async function done(){const k=$('kg');if(k){const v=num(k.value);if(v>0){const id=cur.r+cur.i;(D.log[id]=D.log[id]||{})[Math.max(1,Math.min(6,week()))]=v;await save()}}nav(1)}
-function nav(d){cur.i+=d;if(cur.i<0)cur.i=0;if(cur.i>=P[cur.r].e.length)return h(`<div class=grow><div class=wk>Terminaste 💪</div><p class="c today">¡Muy bien, Pablo!</p></div><button class="big acc" onclick=home()>Inicio</button>`);ex()}
+function nav(d){cur.i+=d;if(cur.i<0)cur.i=0;if(cur.i>=P[cur.r].e.length)return h(`${topBar()}<div class=grow><div class=wk>Terminaste 💪</div><p class="c today">¡Muy bien, Pablo!</p></div><button class="big acc" onclick=home()>Inicio</button>`);ex()}
 // ---------- peso ----------
 function peso(){const L=D.peso.slice(-4).reverse(),u=D.peso.at(-1);
- h(`<h1>⚖️ Peso</h1><div class=kgrow><input id=pk class=kg type=text inputmode=decimal value="${u?u.kg:''}" placeholder="kg"><span class=kgl>kg</span></div>
+ h(`${topBar()}<h1>⚖️ Peso</h1><div class=kgrow><input id=pk class=kg type=text inputmode=decimal value="${u?u.kg:''}" placeholder="kg"><span class=kgl>kg</span></div>
  <button class="big acc" onclick=addP()>Guardar peso de hoy</button>
  <div class=row style="align-items:center">🎯 Meta <input id=meta class=meta inputmode=decimal value="${D.meta||''}" placeholder="—"> kg <button class=mid onclick=setMeta()>OK</button></div>
- <ul class="list grow">${L.map(x=>`<li>${x.d} · <b>${x.kg} kg</b></li>`).join('')||'<li>Sin registros</li>'}</ul><button class=big onclick=home()>Inicio</button>`)}
+ <ul class="list grow">${L.map(x=>`<li>${x.d} · <b>${x.kg} kg</b></li>`).join('')||'<li>Sin registros</li>'}</ul>`)}
 async function addP(){const v=num($('pk').value);if(!(v>0))return;D.peso.push({d:new Date().toLocaleDateString('es-AR'),kg:v});await save();peso()}
 async function setMeta(){D.meta=$('meta').value.trim();await save();peso()}
 // ---------- hist / export ----------
-function hist(r){h(`<div class=row>${['A','B','C'].map(x=>`<button class="mid ${x===r?'acc':''}" onclick="hist('${x}')">${x}</button>`).join('')}</div>
- <div class=grow><table><tr><th>kg</th>${[1,2,3,4,5,6].map(w=>`<th>S${w}</th>`).join('')}</tr>${P[r].e.map((e,i)=>`<tr><td>${short(e[0])}</td>${[1,2,3,4,5,6].map(w=>`<td>${(D.log[r+i]||{})[w]??'·'}</td>`).join('')}</tr>`).join('')}</table></div><button class=big onclick=home()>Inicio</button>`)}
+function hist(r){h(`${topBar()}<div class=row>${['A','B','C'].map(x=>`<button class="mid ${x===r?'acc':''}" onclick="hist('${x}')">${x}</button>`).join('')}</div>
+ <div class=grow><table><tr><th>kg</th>${[1,2,3,4,5,6].map(w=>`<th>S${w}</th>`).join('')}</tr>${P[r].e.map((e,i)=>`<tr><td>${short(e[0])}</td>${[1,2,3,4,5,6].map(w=>`<td>${(D.log[r+i]||{})[w]??'·'}</td>`).join('')}</tr>`).join('')}</table></div>`)}
 function exportar(){let csv='rutina,ejercicio,semana,kg\n';for(const r of['A','B','C'])P[r].e.forEach((e,i)=>{for(const[w,kg]of Object.entries(D.log[r+i]||{}))csv+=`${r},"${e[0]}",${w},${kg}\n`});csv+='\nfecha,peso\n'+D.peso.map(x=>`${x.d},${x.kg}`).join('\n');
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='entrenamiento-respaldo.csv';a.click();navigator.clipboard?.writeText(csv).catch(()=>{});alert('Respaldo descargado (y copiado).')}
 if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
