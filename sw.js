@@ -1,5 +1,5 @@
-// Versionado de caché: subir C en CADA publicación (entreno-v6 → entreno-v7 …). Ver README "Publicar una versión nueva".
-const C='entreno-v6',F=['./','index.html','app.js','manifest.json','icon.svg','icon-192.png','icon-512.png'],TO=3000;
+// Versionado de caché: subir C en CADA publicación (entreno-v7 → entreno-v8 …). Ver README "Publicar una versión nueva".
+const C='entreno-v7',F=['./','index.html','app.js','manifest.json','icon.svg','icon-192.png','icon-512.png'],TO=3000;
 self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(F.map(f=>new Request(f,{cache:'reload'}))))));
 // Sin skipWaiting automático: la app muestra "Versión nueva → Actualizar" (solo en Inicio) y manda este mensaje.
 self.addEventListener('message',e=>{if(e.data==='skipWaiting')self.skipWaiting()});
