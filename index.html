@@ -1,24 +1,31 @@
 <!doctype html><html lang=es><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Entrenamiento</title>
-<meta name=theme-color content="#000"><link rel=manifest href=manifest.json><link rel=apple-touch-icon href=icon.svg><meta name=apple-mobile-web-app-capable content=yes><meta name=mobile-web-app-capable content=yes>
+<meta name=theme-color content="#000"><link rel=manifest href=manifest.json><link rel=apple-touch-icon href=icon-192.png><meta name=apple-mobile-web-app-status-bar-style content=black-translucent>
+<meta http-equiv=Content-Security-Policy content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; base-uri 'none'; form-action 'none'"><meta name=apple-mobile-web-app-capable content=yes><meta name=mobile-web-app-capable content=yes>
 <style>
 *{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden}body{background:#000;color:#fff;font:22px/1.25 system-ui,sans-serif}
-#app{height:100vh;height:100dvh;max-width:600px;margin:auto;padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px;overflow:hidden}
+#app{height:100vh;height:100dvh;max-width:600px;margin:auto;padding:calc(8px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));display:flex;flex-direction:column;gap:8px;overflow:hidden}
 #app>*{flex:none}#app>.grow{flex:1 1 auto;min-height:0;overflow:hidden}
 h1{font-size:34px;margin:0}h2{font-size:28px;margin:0;color:#ffd400;line-height:1.15}p{margin:0}
 button,input,a{font:inherit}.big{display:block;width:100%;min-height:64px;font-size:26px;font-weight:700;border:3px solid #ffd400;border-radius:16px;background:#1a1a1a;color:#fff;text-align:center;text-decoration:none}
 .huge{min-height:130px;font-size:38px}.acc{background:#ffd400!important;color:#000!important;border-color:#ffd400!important}
 .mid{flex:1;min-height:58px;font-size:22px;font-weight:700;border-radius:14px;border:2px solid #888;background:#222;color:#fff;display:flex;align-items:center;justify-content:center;text-decoration:none;padding:0 6px}
-.vid{background:#c00;border-color:#c00}.row{display:flex;gap:8px}.small{background:none;border:none;color:#bbb;font-size:20px;text-decoration:underline;padding:4px 0}
+.vid{background:#b00000;border-color:#b00000}.row{display:flex;gap:8px}.small{background:none;border:none;color:#bbb;font-size:20px;text-decoration:underline;padding:10px 0;min-height:48px}
 input{min-height:58px;font-size:26px;padding:4px 12px;border-radius:12px;border:3px solid #888;background:#111;color:#fff}
 .wk{font-size:42px;font-weight:800;color:#ffd400;text-align:center;line-height:1.1}.obj{font-size:24px;text-align:center}.today{font-size:26px;text-align:center}
 .sr{font-size:52px;font-weight:800;text-align:center;line-height:1.1}.info{font-size:22px}.note{font-size:20px;color:#ddd;border-left:5px solid #ffd400;padding-left:10px}
 .muted{color:#bbb}.sm{font-size:18px}.c{text-align:center}.err{color:#ff6b6b;font-weight:700}
 .kgrow{display:flex;gap:10px;align-items:center}.kg{font-size:56px;font-weight:800;text-align:center;flex:1;min-width:0;height:84px}.kgl{font-size:28px;font-weight:700}
-.lastbox{font-size:18px;color:#bbb;text-align:center;line-height:1.1;min-width:76px}.lastbox b{font-size:40px;color:#fff}
+.lastbox{font-size:22px;color:#bbb;text-align:center;line-height:1.1;min-width:76px}.lastbox b{font-size:44px;color:#fff}
 .tbig{font-size:120px;font-weight:800;color:#ffd400;display:flex;align-items:center;justify-content:center}
 .meta{width:110px;text-align:center}.list{font-size:24px;padding-left:24px;margin:0}
-.sum{margin:0;padding-left:30px;font-size:21px;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:space-around}.sum li{border-bottom:1px solid #333;line-height:1.2}.sum li b{color:#ffd400;white-space:nowrap}
-table{width:100%;border-collapse:collapse;font-size:16px;line-height:1.15}td,th{border:1px solid #444;padding:3px 2px}td:not(:first-child),th{text-align:center;font-weight:700;font-size:19px}
+.sum{margin:0;padding-left:30px;font-size:21px;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:space-around}.sum li{border-bottom:1px solid #555;line-height:1.2}.sum li b{color:#ffd400;white-space:nowrap}
+table{width:100%;border-collapse:collapse;font-size:16px;line-height:1.15}td,th{border:1px solid #777;padding:3px 2px}td:not(:first-child),th{text-align:center;font-weight:700;font-size:19px}td:first-child{font-size:18px}
 
-.top{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:48px}.back{background:#222;color:#fff;border:2px solid #888;border-radius:12px;font-size:20px;font-weight:700;padding:8px 12px;white-space:nowrap;flex:none}.wl{font-size:19px;color:#ffd400;font-weight:700;text-align:right}.nb{min-height:70px;font-size:24px}
-</style></head><body><div id=app></div><script src=app.js></script></body></html>
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:56px}.back{background:#222;color:#fff;border:2px solid #888;border-radius:12px;font-size:22px;font-weight:700;padding:8px 14px;min-height:56px;min-width:120px;white-space:nowrap;flex:none}.wl{font-size:20px;color:#ffd400;font-weight:700;text-align:right}.nb{min-height:70px;font-size:24px}
+.sm2{font-size:20px}.kg.bad,input.bad{border-color:#ff6b6b}.h72{min-height:72px}
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:-1px;padding:0;border:0}
+.toast{position:fixed;left:14px;right:14px;top:calc(8px + env(safe-area-inset-top));background:#ffd400;color:#000;font-size:26px;font-weight:800;text-align:center;border-radius:14px;padding:14px;z-index:9;pointer-events:none}.toast.bad{background:#ff6b6b;color:#000}
+.banner{display:flex;align-items:center;gap:10px;background:#ffd400;color:#000;border-radius:14px;padding:8px 10px;font-size:22px;font-weight:800}
+.banner button{margin-left:auto;min-height:56px;padding:0 16px;font-size:22px;font-weight:800;background:#000;color:#ffd400;border:3px solid #000;border-radius:12px}
+.tdone{color:#000;background:#ffd400;border-radius:20px;padding:0 20px;font-size:90px}
+</style></head><body><main id=app></main><script src=app.js></script></body></html>
