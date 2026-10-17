@@ -7,12 +7,12 @@
 #app>*{flex:none}#app>.grow{flex:1 1 auto;min-height:0;overflow:hidden}
 h1{font-size:34px;margin:0}h2{font-size:28px;margin:0;color:#ffd400;line-height:1.15}p{margin:0}
 button,input,a{font:inherit}.big{display:block;width:100%;min-height:64px;font-size:26px;font-weight:700;border:3px solid #ffd400;border-radius:16px;background:#1a1a1a;color:#fff;text-align:center;text-decoration:none}
-.huge{min-height:130px;font-size:38px}.acc{background:#ffd400!important;color:#000!important;border-color:#ffd400!important}
+.acc{background:#ffd400!important;color:#000!important;border-color:#ffd400!important}
 .mid{flex:1;min-height:58px;font-size:22px;font-weight:700;border-radius:14px;border:2px solid #888;background:#222;color:#fff;display:flex;align-items:center;justify-content:center;text-decoration:none;padding:0 6px}
 .vid{background:#b00000;border-color:#b00000}.row{display:flex;gap:8px}.small{background:none;border:none;color:#bbb;font-size:20px;text-decoration:underline;padding:10px 0;min-height:48px}
 input{min-height:58px;font-size:26px;padding:4px 12px;border-radius:12px;border:3px solid #888;background:#111;color:#fff}
 .wk{font-size:42px;font-weight:800;color:#ffd400;text-align:center;line-height:1.1}.obj{font-size:24px;text-align:center}.today{font-size:26px;text-align:center}
-.sr{font-size:52px;font-weight:800;text-align:center;line-height:1.1}.info{font-size:22px}.note{font-size:20px;color:#ddd;border-left:5px solid #ffd400;padding-left:10px}
+.sr{font-size:52px;font-weight:800;text-align:center;line-height:1.1}.info{font-size:22px}.note{font-size:22px;line-height:1.35;color:#eee;border-left:5px solid #ffd400;padding-left:12px}/* v10: bloque central del ejercicio (series, info, carga, nota): separadores flex con tope (.sp ≤ 48px) y el resto del alto libre arriba/abajo del grupo (.sp0); si no entra, los separadores van a 0 */#app>.grow.exg{display:flex;flex-direction:column}.exg>*{flex:none}.exg>.sp{flex:1 1 0;max-height:48px}.exg>.sp0{flex:1 1 0}
 .muted{color:#bbb}.sm{font-size:18px}.c{text-align:center}.err{color:#ff6b6b;font-weight:700}
 .kgrow{display:flex;gap:10px;align-items:center}.kg{font-size:56px;font-weight:800;text-align:center;flex:1;min-width:0;height:84px}.kgl{font-size:28px;font-weight:700}
 .lastbox{font-size:22px;color:#bbb;text-align:center;line-height:1.1;min-width:76px}.lastbox b{font-size:44px;color:#fff}
@@ -22,7 +22,7 @@ input{min-height:58px;font-size:26px;padding:4px 12px;border-radius:12px;border:
 table{width:100%;border-collapse:collapse;font-size:16px;line-height:1.15}td,th{border:1px solid #777;padding:3px 2px}td:not(:first-child),th{text-align:center;font-weight:700;font-size:19px}td:first-child{font-size:18px}
 
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:56px}.back{background:#222;color:#fff;border:2px solid #888;border-radius:12px;font-size:22px;font-weight:700;padding:8px 14px;min-height:56px;min-width:120px;white-space:nowrap;flex:none}.wl{font-size:20px;color:#ffd400;font-weight:700;text-align:right}.nb{min-height:70px;font-size:24px}
-.sm2{font-size:20px}.kg.bad,input.bad{border-color:#ff6b6b}.h72{min-height:72px}
+.sm2{font-size:20px}.kg.bad,input.bad{border-color:#ff6b6b}
 .vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:-1px;padding:0;border:0}
 .toast{position:fixed;left:14px;right:14px;top:calc(8px + env(safe-area-inset-top));background:#ffd400;color:#000;font-size:26px;font-weight:800;text-align:center;border-radius:14px;padding:14px;z-index:9;pointer-events:none}.toast.bad{background:#ff6b6b;color:#000}
 .banner{display:flex;align-items:center;gap:10px;background:#ffd400;color:#000;border-radius:14px;padding:8px 10px;font-size:22px;font-weight:800}
@@ -32,24 +32,33 @@ table{width:100%;border-collapse:collapse;font-size:16px;line-height:1.15}td,th{
 .cl{list-style:none;margin:0;padding:0;font-size:19px;line-height:1.15;display:flex;flex-direction:column;gap:2px}.cl li{border-bottom:1px solid #555;padding:2px 0}.cl b{color:#ffd400;font-size:21px}.pgl{background:none;border:none}.mid:disabled{opacity:.4}
 .hecho{min-height:72px;font-size:32px}.nb2{min-height:58px;font-size:22px}.sum li.ok span{color:#ffd400}.okc{color:#ffd400}.cnt{font-size:22px;color:#fff;white-space:nowrap}
 .pwr{align-items:center;font-size:22px;font-weight:700}.pwr .meta{width:100px;flex:none}.pwr .mid{flex:1}
-:root{--ok:#14612a;--ok-fg:#fff;--ok-check:#4ade80;--prueba:#ffd400}
+:root{--ok:#14612a;--ok-fg:#fff;--ok-check:#4ade80;--amarillo:#ffd400}
 .sr.l{font-size:44px}.hd{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .st{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:56px}.st .sm2{font-size:20px}
 .chip{flex:none;min-height:56px;min-width:145px;padding:0 14px;border-radius:14px;font:800 24px system-ui;background:var(--ok);color:var(--ok-fg);border:3px solid #fff}
 .sum{list-style:none;padding-left:0}.sum li{min-height:48px;display:flex;align-items:center;gap:8px;cursor:pointer}
 .sum li .ok{flex:none;width:34px;font-size:28px;font-weight:800;color:var(--ok-check);text-align:center}.sum li .no{flex:none;width:34px;font-size:22px;color:#bbb;text-align:center}.sum li .tx{flex:1;min-width:0}
-.wl.prueba{color:var(--prueba);font-size:19px;line-height:1.15}.prueba-l{font-size:20px;color:var(--prueba);text-align:center;font-weight:700}
+.exn{font-weight:800;margin-right:2px}.ini{font-size:17px;color:#bbb;text-align:center;margin:0}.big.del{background:#b00000;border-color:#b00000;color:#fff}
 .blk{font-size:20px;color:#bbb;text-align:center}
 .banner.warn{background:#000;color:#fff;border:3px solid #ff6b6b}.banner.warn button{background:#222;color:#fff;border:2px solid #888}
 .bsel{min-height:56px;font:700 22px system-ui;background:#222;color:#fff;border:2px solid #888;border-radius:14px;width:100%}
 .nm{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}td.del{color:#bbb;font-style:italic}
 .prevb{display:block;font-size:14px;color:#bbb}
-.sx{font-size:20px;font-weight:700;color:#fff;text-align:center;line-height:1.3;margin:-3px 0 -3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.st .hd{min-width:0;flex:1}.ss{font-weight:700;color:var(--prueba)}.wn{font-size:20px;color:#fff;text-align:center;font-weight:700;line-height:1.2}
+.sx{font-size:20px;font-weight:700;color:#fff;text-align:center;line-height:1.3;margin:-3px 0 -3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.st .hd{min-width:0;flex:1}.ss{font-weight:700;color:var(--amarillo)}.wn{font-size:20px;color:#fff;text-align:center;font-weight:700;line-height:1.2}
 .nav3{gap:8px}.nav3 .nb{min-height:70px}.nav3 .arr{flex:0 0 64px;font-size:28px;padding:0}.mid.nb.hecho{flex:1;font-size:26px;font-weight:700;line-height:1.1;padding:0 6px;white-space:nowrap;background:#222;color:#fff;border:2px solid #888;transition:background .12s,color .12s,border-color .12s}.mid.nb.hecho.on{background:#ffd400;color:#000;border-color:#ffd400}
-.st .ss{flex:1;min-width:0;font-size:20px;font-weight:700;color:var(--prueba);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:0}
+.st .ss{flex:1;min-width:0;font-size:20px;font-weight:700;color:var(--amarillo);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:0}
 .nodesc{display:flex;align-items:center;justify-content:center;background:none;border:2px dashed #888;border-radius:14px;font-size:20px;color:#ddd}
 .info .alt{display:block}.info.alt1 .alt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sr.c{font-size:36px}
 .carga{font-size:22px;margin:0;line-height:1.25}.carga.s18{font-size:18px}.carga.inbox{font-size:18px;line-height:1.1;font-weight:400;display:block;margin-top:2px}
 .fmt{font-size:24px;font-weight:700;text-align:center;margin:0;line-height:1.2}
 .wnote{font-size:20px;text-align:center;color:#fff;border:2px solid #888;border-radius:12px;padding:6px 8px;margin:4px 0}.wnote.one{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-</style></head><body><main id=app></main><script src=validar-plan.js></script><script src=app.js></script></body></html>
+
+/* UX v10 (ux-revision-v10.md): el espacio libre se usa para legibilidad */
+.exg>.sp0{display:none}.exg>.sp{flex:0 0 10px;max-height:10px}
+.exg>.note{flex:1 0 auto;display:flex;align-items:center;margin:6px 0 0;padding:6px 0 6px 14px;border-left-width:6px;color:#fff;font-size:22px;line-height:1.3;font-weight:600}
+.big{min-height:80px;font-size:28px}.ini{font-size:20px}.blk{font-size:22px}
+.sum{font-size:22px}.sum li{min-height:56px}
+.grow>table{height:100%}td:not(:first-child),th{font-size:17px;padding:3px 1px;letter-spacing:-.3px}td:first-child{font-size:17px;width:84px;max-width:84px;-webkit-hyphens:auto;hyphens:auto;-webkit-hyphenate-limit-before:3;-webkit-hyphenate-limit-after:3;hyphenate-limit-chars:6 3 3}td:first-child .nm{-webkit-line-clamp:3}table.cn td:not(:first-child),table.cn th{font-size:24px}table.cn td:first-child{width:auto;max-width:180px;font-size:20px;overflow-wrap:anywhere}h2,.sum .tx{overflow-wrap:anywhere}table.c2 td:first-child .nm{-webkit-line-clamp:2}table.c2 td:first-child{overflow-wrap:anywhere}table.cn td:first-child{line-height:1.08}table.cn td:not(:first-child){padding:3px 2px}table.cn.cs td:first-child{font-size:17px}.hrow{gap:6px}.hrow .mid{white-space:nowrap;padding:0 4px}.hrow .mid:first-child{flex:none}.hrow .mtb,.hrow [data-act=ajustes]{flex:0 0 60px;min-width:60px;padding:0}.mts{display:flex;flex-direction:column;justify-content:space-evenly;gap:10px}.mtc{border:2px solid #555;border-radius:14px;padding:10px 14px;background:#151515}.mtt{font-size:22px;font-weight:700;color:#ffd400;overflow-wrap:anywhere}.mtn{font-size:40px;font-weight:700;line-height:1.15}.mtn b{font-size:56px}.mtx{font-size:22px;color:#bbb;font-weight:600}.mtd{font-size:22px;color:#ddd;margin-top:2px}.mtf{font-size:20px;color:#ddd;text-align:center}
+#tt{line-height:1;white-space:nowrap}
+.wl{font-size:22px}.st .sm2,.hd{font-size:22px}.st .ss{font-size:22px}.nodesc{font-size:22px}
+/* v10 cue = tamaño del título (28px): el espacio sobrante se reparte arriba, entre bloques y abajo; el recuadro del cue abraza el texto */.exg>.note{flex:0 0 auto}.exg>.sp{flex:1 1 0;max-height:none;min-height:10px}.exg>.sp0{display:block;flex:1 1 0}</style></head><body><main id=app></main><script src=validar-plan.js></script><script src=app.js></script></body></html>

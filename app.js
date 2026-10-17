@@ -1,8 +1,8 @@
 // entreno-app v8 — el plan vive en plan.json (lo edita Coach); acá queda solo la app. Diseño: plan-vs-app.md (FINAL).
-const APP_VERSION='9.0';// subir en cada versión de la app; plan.json puede pedir un mínimo con "minApp"
+const APP_VERSION='10.0';// subir en cada versión de la app; plan.json puede pedir un mínimo con "minApp"
 // Nombre visible de la app: cambiarlo SOLO acá (y en manifest.json name/short_name; ver README).
 const APP_NAME='Entreno';document.title=APP_NAME;
-const DN=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],DK=['dom','lun','mar','mie','jue','vie','sab'];
+const DC=['dom','lun','mar','mié','jue','vie','sáb'],DN=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],DK=['dom','lun','mar','mie','jue','vie','sab'];
 // Migración v2→v3 sin depender de plan.json: ids viejos del bloque 1 → slug + nombre (QA §5.5)
 const B1='bloque-01',B1_START=new Date(2026,9,19),MAPB1={"A0":["hack-squat","Hack squat o péndulo"],"A1":["prensa-45","Prensa 45°"],"A2":["curl-femoral-acostado","Curl femoral acostado"],"A3":["extension-cuadriceps","Extensión de cuádriceps 90°→30°"],"A4":["abductora","Abductora"],"A5":["aductora","Aductora"],"A6":["gemelos-sentado","Gemelos sentado con discos"],"A7":["pallof-press","Pallof press en polea"],"A8":["elevacion-rodillas-silla-romana","Elevación de rodillas en silla romana"],"B0":["jalon-discos","Jalón con discos"],"B1":["press-inclinado-hammer","Press inclinado con discos (Hammer)"],"B2":["remo-t-pecho-apoyado","Remo T con pecho apoyado"],"B3":["press-hombros-maquina","Press de hombros en máquina"],"B4":["pec-deck-invertido","Pec deck invertido"],"B5":["laterales-polea","Laterales en polea"],"B6":["curl-scott-z","Curl Scott con barra Z"],"B7":["triceps-polea","Tríceps en polea"],"B8":["muneca-polea","Muñeca en polea, liviano (flexión y extensión)"],"C0":["prensa-explosiva","Prensa explosiva"],"C1":["hip-thrust-maquina","Hip thrust en máquina"],"C2":["rumano-smith","Rumano en Smith"],"C3":["remo-polea-baja-un-brazo","Remo en polea baja a un brazo"],"C4":["hiperextension-45","Hiperextensión 45°"],"C5":["patada-gluteo-maquina","Patada de glúteo en máquina"],"C6":["rotadora-tronco","Rotadora de tronco"],"C7":["final-bike-eliptico","Final: assault bike o elíptico"]};
 const N=()=>Object.create(null);// mapas sin prototipo (evita __proto__)
@@ -15,10 +15,11 @@ let PL=null,PLNEXT=null,PLERR=null,PLTOAST=null,PLWARN=[],START=B1_START,ROUTINE
 const NW=()=>PL?PL.bloque.semanas:6,BLK=()=>PL?PL.bloque.id:B1,RUTS=()=>PL?PL.rutinas:[];
 const rut=id=>RUTS().find(r=>r.id===id);
 const isoDay=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s);return new Date(+m[1],m[2]-1,+m[3])};
-function week(){if(!PL)return 0;const t=new Date();t.setHours(0,0,0,0);const d=Math.floor((t-START)/864e5);if(d<0)return 0;const w=Math.floor(d/7)+1;return w>NW()?NW()+1:w}
-const inBlock=w=>w>=1&&w<=NW();
-const wkOfB=(dt,st,n)=>{const t=new Date(dt);t.setHours(0,0,0,0);const d=Math.floor((t-st)/864e5);return d<0?0:Math.min(n+1,Math.floor(d/7)+1)};
-const wTag=f=>{if(!PL)return null;const w=wkOfB(f,START,NW());return inBlock(w)?w:null};// semana del bloque: solo etiqueta (null fuera del bloque)
+// Semana de calendario (v10): depende SOLO de la fecha. Lunes de inicio = S1; antes del inicio cuenta como S1; después de la última sigue (S7, S8…) con la prescripción de la última semana (wEff).
+function week(){if(!PL)return 0;const t=new Date();t.setHours(0,0,0,0);const d=Math.round((t-START)/864e5);if(d<0)return 1;return Math.min(520,Math.floor(d/7)+1)}// tope 520 = mismo límite que load3
+const inBlock=w=>w>=1;// v10: se registra en cualquier semana real (también 7, 8…)
+const wkOfB=(dt,st)=>{const t=new Date(dt);t.setHours(0,0,0,0);const d=Math.round((t-st)/864e5);return d<0?0:Math.floor(d/7)+1};
+const wTag=f=>{if(!PL)return null;const w=wkOfB(f,START);return w>=1?w:null};// semana real del plan: solo etiqueta (null antes del inicio)
 const isDesc=w=>!!PL&&PL.bloque.descarga.includes(w);
 const dmShort=d=>String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0');
 // ---------- datos v2 (formato viejo, solo lectura) ----------
@@ -44,7 +45,7 @@ function toV3(d2,migratedAt){const d=DEF3(),map=legacyMapper();d.migratedAt=migr
  d.peso=d2.peso;d.meta=d2.meta;return d}
 const isV2shape=o=>(Array.isArray(o.hist)&&o.hist.some(x=>x&&own(x,'ex')))||(o.log&&typeof o.log==='object'&&Object.values(o.log).some(v=>v&&typeof v==='object'&&Object.values(v).some(x=>typeof x!=='object')));
 function load3(o){const d=DEF3();d.migratedAt=typeof o.migratedAt==='string'?o.migratedAt:null;d.v2sig=typeof o.v2sig==='string'?o.v2sig:'';d.v2hechos=Array.isArray(o.v2hechos)?o.v2hechos.filter(x=>typeof x==='string'):[];d.v2meta=o.v2meta??'';
- for(const k of['log','hechos'])if(o[k]&&typeof o[k]==='object')for(const[b,exs]of Object.entries(o[k]))if(exs&&typeof exs==='object'){d[k][b]=N();for(const[id,ws]of Object.entries(exs))if(ws&&typeof ws==='object'){const e=N();for(const[w,v]of Object.entries(ws))if(+w>=1&&+w<=12&&(k==='hechos'?v:okKg(+v)))e[w]=k==='hechos'?1:+v;d[k][b][id]=e}}
+ for(const k of['log','hechos'])if(o[k]&&typeof o[k]==='object')for(const[b,exs]of Object.entries(o[k]))if(exs&&typeof exs==='object'){d[k][b]=N();for(const[id,ws]of Object.entries(exs))if(ws&&typeof ws==='object'){const e=N();for(const[w,v]of Object.entries(ws))if(+w>=1&&+w<=520&&(k==='hechos'?v:okKg(+v)))e[w]=k==='hechos'?1:+v;d[k][b][id]=e}}
  if(Array.isArray(o.hist))d.hist=o.hist.filter(x=>x&&(x.tipo==='alias'?typeof x.de==='string'&&typeof x.a==='string':typeof x.exId==='string'&&typeof x.blockId==='string'&&(x.kg===null||okKg(+x.kg))&&!isNaN(Date.parse(x.f)))).map(x=>x.tipo==='alias'?{tipo:'alias',blockId:String(x.blockId||''),de:x.de,a:x.a,f:String(x.f||'')}:{blockId:x.blockId,exId:x.exId,e:String(x.e||x.exId),r:String(x.r||''),kg:x.kg===null?null:+x.kg,f:x.f,w:+x.w||0,...(x.mig?{mig:1}:{})});
  if(o.rutas&&typeof o.rutas==='object')for(const[k,v]of Object.entries(o.rutas))if(typeof v==='string')d.rutas[k]=v;
  if(o.nombres&&typeof o.nombres==='object')for(const[k,v]of Object.entries(o.nombres))if(typeof v==='string')d.nombres[k]=v;
@@ -93,7 +94,16 @@ const fmt=v=>v===''||v==null?'':String(v).replace('.',',');
 // V7-02: ignora toques durante NAVMS tras cada cambio de pantalla (doble toque)
 const NAVMS=typeof window.__NAVLOCK_MS==='number'?window.__NAVLOCK_MS:600;let navUntil=0;
 document.addEventListener('click',e=>{if((Date.now()<navUntil||hechoT)&&e.target.closest&&e.target.closest('#app button,#app a,#app [data-act]')){e.preventDefault();e.stopImmediatePropagation()}},true);
-function h(html){app().innerHTML=html;window.scrollTo(0,0);navUntil=Date.now()+NAVMS;fit()}
+function h(html){app().innerHTML=html;window.scrollTo(0,0);navUntil=Date.now()+NAVMS;fit();queueMicrotask(fitAll)}
+// UX v10: agranda la fuente hasta llenar el espacio sin desbordar (búsqueda binaria, entero de px). Corre después de shrinkEx (microtask al final de h()).
+function fitFont(el,min,max,ok){if(!el)return;el.style.fontSize=max+'px';if(ok())return;let lo=min,hi=max;el.style.fontSize=lo+'px';if(!ok())return;while(hi-lo>1){const m=Math.floor((lo+hi)/2);el.style.fontSize=m+'px';if(ok())lo=m;else hi=m}el.style.fontSize=lo+'px'}
+function fitAll(){const a=app();if(!a)return;
+ const tb=a.querySelector('.grow>table');if(tb){const no=()=>over()||tb.scrollWidth>tb.parentElement.clientWidth+1;// QA M-1/M-2: Historial siempre entero. 1) sin letra grande (.cn) si no entra; 2) último recurso: nombres en 2 líneas y corte en cualquier letra (.c2)
+  if(tb.classList.contains('cn')&&no())tb.classList.add('cs');if(tb.classList.contains('cn')&&no())tb.classList.remove('cn','cs');if(no())tb.classList.add('c2')}
+ const n=a.querySelector('.exg>.note');if(n){const t=a.querySelector('h2'),ts=t?Math.round(parseFloat(getComputedStyle(t).fontSize)):28;fitFont(n,Math.min(22,ts),ts,()=>!over())}// v10: cue del mismo tamaño que el título (h2); solo achica si no entra
+ const s=a.querySelector('ol.sum,ul.sum,.sum');if(s)fitFont(s,21,26,()=>!over()&&s.scrollHeight<=s.clientHeight+1);
+ const t=a.querySelector('#tt');if(t&&!t.classList.contains('tdone'))fitFont(t,120,200,()=>t.scrollWidth<=t.parentElement.clientWidth&&!over())}
+addEventListener('resize',()=>fitAll());addEventListener('orientationchange',()=>setTimeout(fitAll,150));document.fonts&&document.fonts.ready.then(()=>fitAll());
 // Elementos .opt (línea del bloque, banners en Resumen) solo se muestran si entran sin scroll
 function over(){const a=app();if(a.scrollHeight>a.clientHeight+1)return true;return[...a.querySelectorAll('.grow')].some(g=>{const b=g.getBoundingClientRect().bottom;return[...g.children].some(c=>c.getBoundingClientRect().bottom>b+1)})}
 function fit(){for(const el of[...app().querySelectorAll('.opt')]){if(!over())break;el.remove()}}
@@ -101,31 +111,29 @@ function fit(){for(const el of[...app().querySelectorAll('.opt')]){if(!over())br
 let TT=null,TCUR=null,TQ=[];
 function toast(msg,bad,o={}){const it={msg,bad:!!bad,dur:o.dur||(bad?2500:1200),plan:!!o.plan};if(it.plan&&TCUR){TQ.push(it);return}if(!it.plan&&TCUR&&TCUR.plan)TQ.unshift(TCUR);showT(it)}
 function showT(it){document.querySelector('.toast')?.remove();clearTimeout(TT);TCUR=it;const t=document.createElement('div');t.className='toast'+(it.bad?' bad':'');t.setAttribute('role',it.bad?'alert':'status');t.setAttribute('aria-live',it.bad?'assertive':'polite');t.textContent=it.msg;document.body.appendChild(t);TT=setTimeout(()=>{t.remove();TCUR=null;const n=TQ.shift();if(n)showT(n)},it.dur)}
-// ---------- huella/cara (WebAuthn, solo bloqueo de pantalla) ----------
-const WA=!!(window.PublicKeyCredential&&navigator.credentials);let unlocked=false,hiddenAt=0,resume=null;
-const rnd=n=>crypto.getRandomValues(new Uint8Array(n));
-async function bioOn(){try{if(PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable&&!(await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable()))return toast('Este equipo no tiene huella/cara disponible',true);
- const c=await navigator.credentials.create({publicKey:{challenge:rnd(32),rp:{name:'Entrenamiento'},user:{id:rnd(16),name:'Pablo',displayName:'Pablo'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000}});
- localStorage.setItem('gt_cred',btoa(String.fromCharCode(...new Uint8Array(c.rawId))));unlocked=true;toast('✓ Huella/cara activada');home()}catch(e){toast('No se pudo activar la huella/cara',true)}}
-function bioOff(){if(confirm('¿Desactivar el bloqueo con huella/cara?')){localStorage.removeItem('gt_cred');home()}}
-const fails=()=>+(sessionStorage.getItem('gt_fails')||0);
-function lockScreen(msg=''){unlocked=false;clearInterval(TI);h(`<div class=grow><div class=wk>🔒</div><h1 class=today>Hola Pablo</h1></div><p class="err c">${esc(msg)}</p><button id=ub class="big acc huge" data-act=unlock>Desbloquear 👆</button>`)}
-function recovery(why){unlocked=false;const n=fails(),msg=why==='cred'?'La llave guardada no es válida.':n>=2?`No se pudo verificar ${n} veces.`:'No se pudo verificar la huella/cara.';h(`<div class=grow><div class=wk>🔒</div><h1 class=today>Hola Pablo</h1>
- <p class="err c" style="font-size:24px;margin-top:10px">${msg}</p><p style="font-size:22px;margin-top:8px">Si cambiaste de iPhone o borraste la llave, podés desactivar el bloqueo. Tus datos quedan.</p></div>
- <button id=ub class="big acc h72" data-act=unlock>Reintentar 👆</button><button class=big data-act=exportar>💾 Exportar respaldo</button><button class=big data-act=lockOff>Desactivar bloqueo</button>`)}
-function lockOff(){if(confirm('¿Desactivar el bloqueo? Se apaga huella/cara. Lo podés volver a activar en Ajustes.')){localStorage.removeItem('gt_cred');sessionStorage.removeItem('gt_fails');unlocked=true;afterUnlock()}}
-async function unlock(){const b=$('ub');if(b){b.disabled=true;b.textContent='Verificando…'}let id;
- try{id=Uint8Array.from(atob(localStorage.getItem('gt_cred')||''),c=>c.charCodeAt(0));if(!id.length)throw 0}catch(e){return recovery('cred')}
- try{await navigator.credentials.get({publicKey:{challenge:rnd(32),allowCredentials:[{type:'public-key',id,transports:['internal']}],userVerification:'required',timeout:60000}});sessionStorage.removeItem('gt_fails');unlocked=true;afterUnlock()}
- catch(e){const n=fails()+1;sessionStorage.setItem('gt_fails',n);if(n>=3||e&&e.name==='InvalidStateError')recovery();else lockScreen(e&&e.name==='NotAllowedError'?'Cancelado o no reconocido. Probá de nuevo.':'No se pudo verificar. Probá de nuevo.')}}
-function afterUnlock(){if(DATAERR)return dataError();if(STORERR)return storageError();if(!PL)return noPlan();const r=resume;resume=null;(r||home)()}
+// ---------- v10: sin bloqueo (Pablo, 17/10 10:27): se quitó el bloqueo con huella/cara por completo. Migración: al arrancar se borran gt_cred y gt_fails; los datos no se tocan ----------
+let resume=null;
+function afterBoot(){if(DATAERR)return dataError();if(STORERR)return storageError();if(!PL)return noPlan();const r=resume;resume=null;(r||home)()}
 function keepDraft(){const k=$('kg');if(k&&cur)cur.draft=k.value}
-document.addEventListener('visibilitychange',()=>{if(document.hidden){hiddenAt=Date.now();keepDraft()}else{REG&&REG.update().catch(()=>{});if(localStorage.getItem('gt_cred')&&WA&&unlocked&&Date.now()-hiddenAt>60000){resume=view;lockScreen()}}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)keepDraft();else REG&&REG.update().catch(()=>{})});
 function dataError(){view=dataError;h(`<div class=grow><div class=wk>⚠️</div><h1 class=today>No se pudieron leer los datos guardados.</h1><p style="font-size:22px;margin-top:10px">Guardé una copia. Podés exportarla o empezar de cero.</p></div>
  <button class=big data-act=exportBad>💾 Exportar copia</button><button class="big acc" data-act=resetData>Empezar de cero</button>`)}
 function exportBad(){download(localStorage.getItem('gt_data_bad')||BADRAW||'','entrenamiento-copia-datos.txt','text/plain');toast('✓ Copia exportada')}
 function storageError(){view=storageError;h(`<div class=grow><div class=wk>⚠️</div><h1 class=today>No hay espacio para guardar los datos.</h1><p style="font-size:22px;margin-top:10px">Tus datos están cargados, pero no se pudieron guardar en el celular. Exportá un respaldo ahora.</p></div>
  <button class="big acc" data-act=exportar>💾 Exportar respaldo</button><button class=big data-act=storeOk>Seguir igual</button>`)}
+// Borrar todos los datos (v10): pantalla de confirmación + confirm() final. Borra kilos, hechos, historial, peso, meta y copias viejas (gt_data3, gt_data, gt_data_bad).
+// NO toca el plan (gt_plan_ok).
+function borrarTodo(){view=borrarTodo;h(`${topBar()}<h1>🗑️ Borrar todos los datos</h1><div class=grow>
+ <p style="font-size:22px;margin:8px 0">Se borran <b>todos</b> tus registros de este celular: kilos, ejercicios hechos, historial, peso corporal y meta.</p>
+ <p class=muted style="margin:8px 0">No se puede deshacer. Si querés guardar una copia, exportá un respaldo antes.</p>
+ <p class=muted style="margin:8px 0">El plan se mantiene.</p></div>
+ <button class=big data-act=exportar>💾 Exportar respaldo</button><button class="big del" data-act=borrarSi>Sí, borrar todo</button><button class=big data-act=ajustes>Cancelar</button>`)}
+let BORRANDO=false;
+async function borrarSi(){if(BORRANDO)return;if(!confirm('¿Seguro? Se borran todos los datos de la app y no se pueden recuperar.'))return;
+ BORRANDO=true;try{
+ // QA A-1: se borra TODA clave gt_* salvo el plan (gt_plan_ok): gt_data3, gt_data, gt_data_bad, gt_data_v*_backup (v7/v7.1) y cualquier otra
+ try{const KEEP=new Set(['gt_plan_ok']);for(const k of Object.keys(localStorage))if(k.startsWith('gt_')&&!KEEP.has(k))localStorage.removeItem(k)}catch(e){}
+ D=DEF3();cur=null;BADRAW='';DATAERR=false;if(!save())return;home();toast('✓ Datos borrados')}finally{BORRANDO=false}}
 function resetData(){if(!confirm('¿Empezar de cero? La copia de los datos viejos queda guardada.'))return;D=DEF3();if(save()){DATAERR=false;home()}}
 // ---------- plan.json: carga, validación y fallback (plan-vs-app.md §4) ----------
 function planOk(){try{const o=JSON.parse(localStorage.getItem('gt_plan_ok')||'null');if(o&&o.plan&&!validarPlan(o.plan,{appVersion:APP_VERSION}).fatal.length)return o.plan}catch(e){}return null}
@@ -148,7 +156,7 @@ async function loadPlan(){let res,txt,fromCache=false;
  try{localStorage.setItem('gt_plan_ok',JSON.stringify({plan:o,planVersion:o.planVersion,at:new Date().toISOString()}))}catch(e){}
  PLERR=null;if(changed&&prev)PLTOAST='✓ Plan actualizado: Bloque '+o.bloque.numero;
  if(!PL||!ROUTINE)applyPlan(o);else PLNEXT=o;return true}
-function retryPlan(){loadPlan().then(ok=>{if(!unlocked)return;if(ok)toast('✓ Plan cargado');if(!PL)return noPlan();home()})}
+function retryPlan(){loadPlan().then(ok=>{if(ok)toast('✓ Plan cargado');if(!PL)return noPlan();home()})}
 function noPlan(){view=noPlan;h(`<div class=grow><div class=wk>⚠️</div><h1 class=today>No se pudo cargar el plan de entrenamiento.</h1><p style="font-size:22px;margin-top:10px">Tus kg y tu peso están guardados. Probá de nuevo con conexión.</p></div>
  <button class="big acc" data-act=retryPlan>Reintentar</button><div class=row><button class=mid data-act=peso>⚖️ Ir a Peso</button><button class=mid data-act=exportar>💾 Exportar</button></div>`)}
 // ---------- banners (solo Inicio y Resumen, nunca en una rutina) ----------
@@ -158,31 +166,30 @@ function banners(){const two=newVer&&PLERR,o=[];
  if(PLERR)o.push(PLERR.upd?`<div class="banner warn" role=alert><span>⚠️ Plan nuevo: actualizá la app</span><button data-act=actualizar>Actualizar</button></div>`:`<div class="banner warn" role=alert><span>${two?'⚠️ Plan nuevo no cargó':'⚠️ No se pudo cargar el plan nuevo'}</span><button data-act=retryPlan>Reintentar</button></div>`);
  return{html:o.join(''),n:o.length}}
 function actualizar(){reloading=true;if(REG&&REG.waiting)REG.waiting.postMessage('skipWaiting');else location.reload()}
-function ajustes(){view=ajustes;const on=!!localStorage.getItem('gt_cred');h(`${topBar()}<h1>⚙️ Ajustes</h1><div class=grow>
- ${!WA?'<p class=err>Este navegador no soporta huella/cara. La app abre sin bloqueo.</p>':on?'<p>Huella/cara: <b>ACTIVADO</b></p><button class="big" data-act=bioOff>Desactivar huella/cara</button>':'<p>Huella/cara: <b>apagado</b></p><button class="big acc" data-act=bioOn>Activar huella/cara</button>'}
- <p class=muted style="margin:12px 0">Es solo un bloqueo de pantalla: los datos quedan sin cifrar en este celular.</p><button class="big" data-act=exportar>💾 Exportar respaldo</button>
+function ajustes(){view=ajustes;h(`${topBar()}<h1>⚙️ Ajustes</h1><div class=grow>
+ <p class=muted style="margin:12px 0">Tus datos quedan solo en este celular. Exportá un respaldo de vez en cuando.</p><button class="big" data-act=exportar>💾 Exportar respaldo</button>
+ <button class="big del" data-act=borrarTodo style="margin-top:12px">🗑️ Borrar todos los datos</button>
  <p class="muted sm2" style="margin-top:12px">App ${APP_VERSION}${PL?` · Plan v${PL.planVersion} · Bloque ${PL.bloque.numero}`:''}</p>${PLERR?`<p class="err sm2">Plan: ${esc(PLERR.msg)}</p>`:''}${PLWARN.length?`<p class="muted sm2">Avisos del plan: ${PLWARN.length} (${esc(PLWARN[0])})</p>`:''}</div>`)}
-const fechaIni=()=>dmShort(START);
-function wlabel(){const w=week();return w===0?'Semana 1 de '+NW():w>NW()?'Bloque terminado ✅':`Semana ${w} de ${NW()}${isDesc(w)?' · Descarga':''}`}
-const topBar=(t)=>`<div class=top><button class=back data-act=home>⌂ Inicio</button>${PL&&week()===0?`<span class="wl prueba">🧪 Modo prueba:<br>no se guarda hasta el ${fechaIni()}</span>`:`<span class=wl>${wlabel()}</span>`}</div>${t?`<h1 class=vh>${esc(t)}</h1>`:''}`;
+const wtxt=w=>`Semana ${w} de ${NW()}${w<=NW()&&isDesc(w)?' · Descarga':''}`;
+function wlabel(){return wtxt(week())}
+const topBar=(t)=>`<div class=top><button class=back data-act=home>⌂ Inicio</button><span class=wl>${wlabel()}</span></div>${t?`<h1 class=vh>${esc(t)}</h1>`:''}`;
 // ---------- home ----------
 function home(){ROUTINE=false;if(PLNEXT){applyPlan(PLNEXT);PLNEXT=null}if(!PL)return noPlan();view=home;
  const w=week(),dw=new Date().getDay(),ag=PL.agenda[DK[dw]]||{},B=banners();
- const wt=w===0?'Semana 1 de '+NW():w>NW()?'Bloque terminado ✅':`Semana ${w} de ${NW()}${isDesc(w)?' · Descarga':''}`;
- const wn=inBlock(w)&&PL.semanas&&PL.semanas[w]&&PL.semanas[w].nota?`<p class="wnote${B.n>1?' one':''}">${esc(PL.semanas[w].nota)}</p>`:'';
- const obj=w===0?`<p class=prueba-l>🧪 Modo prueba: no se guarda hasta el ${fechaIni()}</p>`:inBlock(w)&&B.n<2&&PL.semanas&&PL.semanas[w]?`<p class=obj>🎯 ${esc(PL.semanas[w].objetivo)}</p>`:'';
- h(`${B.html}<p class=brand>${APP_NAME}</p><h1 class=wk>${wt}</h1><p class="blk opt">Bloque ${PL.bloque.numero} · ${esc(PL.bloque.nombre)}</p>${obj}${wn}
+ const wt=wtxt(w),we=wEff();
+ const wn=PL.semanas&&PL.semanas[we]&&PL.semanas[we].nota?`<p class="wnote${B.n>1?' one':''}">${esc(PL.semanas[we].nota)}</p>`:'';
+ const obj=B.n<2&&PL.semanas&&PL.semanas[we]?`<p class=obj>🎯 ${esc(PL.semanas[we].objetivo)}</p>`:'';
+ h(`${B.html}<p class=brand>${APP_NAME}</p><h1 class=wk>${wt}</h1><p class="blk opt">Bloque ${PL.bloque.numero} · ${esc(PL.bloque.nombre)}</p><p class=ini>Inicio del plan: ${DC[START.getDay()]} ${dmShort(START)}/${START.getFullYear()}</p>${obj}${wn}
  <p class=today>Hoy (${DN[dw]}): <b>${esc(ag.rutina?'Rutina '+ag.rutina:ag.texto||'')}</b></p><div class=grow></div>
  ${RUTS().map(r=>`<button class="big ${r.id===ag.rutina?'acc':''}" data-act=resumen data-a="${esc(r.id)}">${esc(r.titulo)}</button>`).join('')}
  <div class="row pwr"><label for=pk>⚖️ Peso</label><input id=pk class=meta inputmode=decimal value="${D.peso.length?fmt(pesoOrd().at(-1).kg):''}" placeholder="kg"><span>kg</span><button class=mid data-act=addP>Guardar</button></div>
- <div class=row><button class=mid data-act=peso>⚖️ Peso</button><button class=mid data-act=hist>📊 Historial</button><button class=mid data-act=ajustes aria-label=Ajustes>⚙️</button></div>
- ${WA&&!localStorage.getItem('gt_cred')?'<button class="small opt" data-act=bioOn>👆 Activar huella/cara</button>':''}${!WA?'<p class="muted c sm">Este navegador no soporta huella/cara.</p>':''}`);
+ <div class="row hrow"><button class=mid data-act=peso>⚖️ Peso</button><button class=mid data-act=hist>📊 Historial</button><button class="mid mtb" data-act=metricas aria-label=Métricas>📈</button><button class=mid data-act=ajustes aria-label=Ajustes>⚙️</button></div>`);
  if(PLTOAST){toast(PLTOAST,false,{plan:true,dur:2500});PLTOAST=null}}
 // ---------- resumen + guía ----------
 const firstPending=r=>{const w=week();return inBlock(w)?exs(r).findIndex(e=>!isDone(e.id,w)):0};
 function resumen(rid){const r=rut(rid);if(!r)return home();if(!cur||cur.r!==rid)cur={r:rid,i:0};ROUTINE=true;view=()=>resumen(rid);const w=week(),inB=inBlock(w),B=banners(),fp=firstPending(r);
  h(`${topBar()}${B.html.replace(/class="banner/g,'class="opt banner').replace(/class=banner/g,'class="opt banner"')}<h2>${esc(r.titulo)}${inB?` <span class=cnt>${exs(r).filter(e=>isDone(e.id,w)).length}/${exs(r).length} ✓</span>`:''}</h2><ol class="sum grow">${exs(r).map((e,i)=>{const L=lastKg(e.id),ok=inB&&isDone(e.id,w);
-  return`<li data-act=goEx data-a="${i}" role=button tabindex=0>${ok?'<span class=ok aria-label=Hecho>✓</span>':`<span class=no>${i+1}</span>`}<span class=tx><span class=nm2>${e.grupo&&grupoDe(exs(r),i)?'🔗':''}${esc(corto(e))}</span> <b>${esc(eff(e).series).replace(' por lado',' c/lado').replace(' por pierna',' c/pierna').replace(' (30″ fuerte / 30″ suave)',' × 30″')}${L?` · ${fmt(L.kg)} kg`:''}</b></span></li>`}).join('')}</ol>
+  return`<li data-act=goEx data-a="${i}" role=button tabindex=0>${ok?'<span class=ok aria-label=Hecho>✓</span>':`<span class=no>${i+1}</span>`}<span class=tx><span class=nm2>${e.grupo&&grupoDe(exs(r),i)?'🔗':''}${esc(corto(e))}</span> <b>${esc(eff(e).series).replace(' por lado',' c/lado').replace(' por pierna',' c/pierna').replace('(30″ fuerte / 30″ suave)','(30″/30″)')}${L?` · ${fmt(L.kg)} kg`:''}</b></span></li>`}).join('')}</ol>
  <button class="big acc" data-act=start data-a="${esc(rid)}">${fp<0?'Repasar ▶':'Empezar ▶'}</button>`)}
 function start(rid){const r=rut(rid);if(!r)return;const fp=firstPending(r);cur={r:rid,i:fp<0?0:fp};ex()}
 function goEx(i){const r=rut(cur&&cur.r||'');if(!r)return;cur={r:r.id,i:Math.min(Math.max(0,+i||0),exs(r).length-1)};ex()}
@@ -198,26 +205,26 @@ function ex(){const r=rut(cur.r);if(!r)return home();ROUTINE=true;view=ex;const 
  const sinD=G&&!G.ultimo;
  // UX v8 (ux-revision.md "Campos nuevos del plan"): superserie en la fila .st; tempo en la línea de descanso/RPE; carga en línea propia; formato solo sin kg
  const ssTxt=G?esc(G.otros.map(corto).join(' y ')):'',ssLab=G?`aria-label="Superserie con ${ssTxt}"`:'';
- const st=done?`<div class=st>${G?`<p class=ss ${ssLab}>🔗 + ${ssTxt}</p>`:`<p class="muted sm2 hd">${esc(r.id)} · ${i+1}/${E.length}</p>`}<button class=chip data-act=unhecho aria-pressed=true aria-label="Hecho. Tocar para desmarcar">✓ HECHO</button></div>`
-  :G?`<div class=st><p class=ss>🔗 Superserie con ${ssTxt}</p></div>`:`<p class="muted sm2 hd">${esc(r.titulo)} · ${i+1}/${E.length}</p>`;
+ const st=done?`<div class=st>${G?`<p class=ss ${ssLab}>🔗 + ${ssTxt}</p>`:`<p class="muted sm2 hd">${esc(r.titulo)}</p>`}<button class=chip data-act=unhecho aria-pressed=true aria-label="Hecho. Tocar para desmarcar">✓ HECHO</button></div>`
+  :G?`<div class=st><p class=ss>🔗 Superserie con ${ssTxt}</p></div>`:`<p class="muted sm2 hd">${esc(r.titulo)}</p>`;
  const sinKg=e0.registraKg===false;
- h(`${topBar('Entrenamiento')}${st}<h2>${esc(e.nombre)}</h2>
- <div class="sr${[...e.series].length>14?' l':''}">${esc(e.series)}</div>${sinKg&&e.formato?`<p class=fmt>⏲ ${esc(e.formato)}</p>`:''}<p class=info>${sinD?'':`⏱️ ${esc(d)} · `}RPE ${esc(e.rpe)}${e.tempo?` · Tempo ${esc(e.tempo)}`:''}<span class=alt>🔄 ${esc(e.alternativa)}</span></p>${e.carga?`<p class=carga>🏋️ ${esc(e.carga)}</p>`:''}<div class=grow><p class=note>${esc(e.nota)}</p></div>
+ h(`${topBar('Entrenamiento')}${st}<h2><span class=vh>Ejercicio ${i+1} de ${E.length}: </span><span class=exn aria-hidden=true>${i+1}/${E.length}</span> ${esc(e.nombre)}</h2>
+ <div class="grow exg"><i class=sp0></i><div class="sr${[...e.series].length>14?' l':''}">${esc(e.series)}</div>${sinKg&&e.formato?`<p class=fmt>⏲ ${esc(e.formato)}</p>`:''}<i class=sp></i><p class=info>${sinD?'':`⏱️ ${esc(d)} · `}RPE ${esc(e.rpe)}${e.tempo?` · Tempo ${esc(e.tempo)}`:''}<span class=alt>🔄 ${esc(e.alternativa)}</span></p>${e.carga?`<p class=carga>🏋️ ${esc(e.carga)}</p>`:''}<i class=sp></i><p class=note>${esc(e.nota)}</p><i class=sp0></i></div>
  ${sinKg?'':`<div class=kgrow><div class=lastbox>Última<br><b>${L?fmt(L.kg):'—'}</b>${L&&L.prev?'<small class=prevb>bloque ant.</small>':''}</div><label for=kg class=vh>Kilos</label><input id=kg class=kg type=text inputmode=decimal value="${esc(val)}" placeholder="kg"><span class=kgl>kg</span></div>`}
- <div class=row><a class="mid vid" href="${esc(vidUrl(e.video))}" target=_blank rel=noopener>Ver video ▶</a>${sinD?'<span class="mid nodesc">Sin descanso</span>':d!=='—'?`<button class=mid data-act=timerI data-a="${i}">⏱️ ${esc(d)}</button>`:''}</div>
+ <div class=row><a class="mid vid" href="${esc(vidUrl(e.video))}" target=_blank rel=noopener aria-label="Ver video del ejercicio">Video</a>${sinD?'<span class="mid nodesc">Sin descanso</span>':d!=='—'?`<button class=mid data-act=timerI data-a="${i}">⏱️ ${esc(d)}</button>`:''}</div>
  <div class="row nav3"><button class="mid nb arr" data-act=done data-a=-1 aria-label=Anterior>←</button><button class="mid nb arr" data-act=done data-a=1 aria-label=Siguiente>→</button><button class="mid nb hecho${done?' on':''}" data-act=hecho aria-pressed=${done}>✓ Hecho</button></div>`);
  shrinkEx()}
-// Orden de reducción de UX si el ejercicio no entra: 1) alternativa en 1 línea, 2) series 44→36px, 3) carga a 18px dentro de "Última". La nota técnica nunca se recorta.
+// Orden de reducción de UX si el ejercicio no entra: 1) alternativa en 1 línea, 2) series 44→36px, 3) carga a 18px dentro de "Última". La nota técnica nunca se recorta (mín. 22px; fitAll la agranda hasta 44px si sobra alto).
 function shrinkEx(){const a=app(),steps=[()=>a.querySelector('.info')?.classList.add('alt1'),()=>a.querySelector('.sr')?.classList.add('c'),()=>{const c=a.querySelector('.carga'),lb=a.querySelector('.lastbox');if(!c)return;if(lb){c.classList.add('inbox');lb.appendChild(c)}else c.classList.add('s18')}];
  for(const s of steps){if(!over())break;s()}}
 let TI=null;function timer(s){view=ex;clearInterval(TI);let t=s.includes('′')?parseInt(s)*60:parseInt(s);const f=()=>`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
  h(`${topBar('Descanso')}<p class=today>Descanso</p><div class=grow style="display:flex;align-items:center;justify-content:center"><div class=tbig id=tt aria-live=polite>${f()}</div></div><button class="big acc" data-act=backEx>Volver al ejercicio</button>`);
- TI=setInterval(()=>{t--;const el=$('tt');if(!el)return clearInterval(TI);el.textContent=t>0?f():'¡Dale! ✅';if(t<=0){clearInterval(TI);el.classList.add('tdone');navigator.vibrate&&navigator.vibrate([400,200,400])}},1000)}
+ TI=setInterval(()=>{t--;const el=$('tt');if(!el)return clearInterval(TI);el.textContent=t>0?f():'¡Dale! ✅';if(t<=0){clearInterval(TI);el.style.fontSize='';el.classList.add('tdone');fitFont(el,48,90,()=>el.scrollWidth<=el.parentElement.clientWidth);navigator.vibrate&&navigator.vibrate([400,200,400])}},1000)}
 function addHist(id,kg,w){D.hist.push({blockId:BLK(),exId:id,e:nombreDe(id),r:cur.r,kg,f:new Date().toISOString(),w})}// append-only
-function saveKg(){const k=$('kg');if(!k)return true;const s=k.value.trim(),id=rut(cur.r).ejercicios[cur.i].id,w=week(),inB=inBlock(w),Lb=logB(BLK());
+function saveKg(){const k=$('kg');if(!k)return true;const s=k.value.trim(),id=exs(rut(cur.r))[cur.i].id,w=week(),inB=inBlock(w),Lb=logB(BLK());
  if(s===''){if(inB&&logGet(BLK(),id,w)!=null){for(const x of aliases(id))if(Lb[x])delete Lb[x][w];addHist(id,null,w);if(!save())return false;toast(`✓ Borrado (S${w})`)}return true}
  const v=num(s);if(!okKg(v)){k.classList.add('bad');k.focus();toast('Número no válido. Ej: 82,5',true);return false}
- if(!inB){if(w>NW())toast('Fuera del bloque: no se guardó',true);return true}
+ if(!inB)return true
  const prev=logGet(BLK(),id,w),lb=lastInBlock(id);(Lb[id]=Lb[id]||N())[w]=v;
  if(!lb||lb.kg!==v)addHist(id,v,w);if(!save())return false;if(prev!==v){navigator.vibrate&&navigator.vibrate(30);toast(`✓ Guardado: ${fmt(v)} kg (S${w})`)}return true}
 function done(d){if(saveKg())nav(d)}
@@ -259,14 +266,25 @@ function filas(rid,b){// [{id,nombre,del}] máx. 10
 const bName=b=>b===BLK()?`Bloque ${PL.bloque.numero} · ${PL.bloque.nombre} (actual)`:b;
 const tabsDe=b=>b===BLK()?RUTS().map(r=>r.id):[...new Set(histKg().filter(x=>x.blockId===b).map(x=>x.r))].sort();
 function tabs(rid,b){return`<div class=row>${tabsDe(b).map(x=>`<button class="mid ${x===rid?'acc':''}" data-act=hist data-a="${esc(x)}">${esc(x)}</button>`).join('')}<button class="mid ${rid==='cam'?'acc':''}" data-act=cambios>Cambios</button></div>`}
-let HB=null;
-function hist(rid,b){b=b||HB||BLK();if(!bloques().includes(b))b=BLK();HB=b;const tb=tabsDe(b);if(!rid||!tb.includes(rid))rid=tb[0]||'';view=()=>hist(rid,b);const bl=bloques(),nw=b===BLK()?NW():6,ws=[...Array(nw)].map((_,k)=>k+1);
+let HB=null,HWP=null,HCUR='';// HWP: página de semanas del Historial (6 por página)
+function hist(rid,b){b=b||HB||BLK();if(!bloques().includes(b))b=BLK();HB=b;const tb=tabsDe(b);if(!rid||!tb.includes(rid))rid=tb[0]||'';HCUR=rid;view=()=>hist(rid,b);const bl=bloques(),cw=b===BLK()?week():0,nw=Math.max(b===BLK()?NW():6,cw,maxW(b)),PS=4,np=Math.ceil(nw/PS);if(HWP==null||HWP>=np)HWP=cw?Math.floor((Math.min(cw,nw)-1)/PS):np-1;const pg=HWP,ws=[...Array(Math.min(PS,nw-pg*PS))].map((_,k)=>pg*PS+k+1);
  h(`${topBar('Historial')}${bl.length>1?`<label class=vh for=bsel>Bloque</label><select id=bsel class=bsel>${bl.map(x=>`<option value="${esc(x)}" ${x===b?'selected':''}>${esc(bName(x))}</option>`).join('')}</select>`:''}${tabs(rid,b)}
- <div class=grow><table><tr><th>kg</th>${ws.map(w=>`<th>S${w}</th>`).join('')}</tr>${filas(rid,b).map(f=>`<tr><td class="${f.del?'del':''}"><span class=nm>${esc(f.nombre)}${f.del?' (quitado)':''}</span></td>${ws.map(w=>`<td class="${f.del?'del':''}">${fmt(logGet(b,f.id,w))||'·'}</td>`).join('')}</tr>`).join('')}</table></div>`)}
-document.addEventListener('change',e=>{if(e.target&&e.target.id==='bsel'){HB=e.target.value;hist('',HB)}});
+ <div class=grow><table class=cn><tr><th>kg</th>${ws.map(w=>`<th>S${w}</th>`).join('')}</tr>${filas(rid,b).map(f=>`<tr><td class="${f.del?'del':''}"><span class=nm>${esc(f.nombre)}${f.del?' (quitado)':''}</span></td>${ws.map(w=>`<td class="${f.del?'del':''}">${fmt(logGet(b,f.id,w))||'·'}</td>`).join('')}</tr>`).join('')}</table></div>${np>1?`<div class=row><button class=mid data-act=histPg data-a="${pg-1}" ${pg?'':'disabled'} aria-label="Semanas anteriores">◀</button><span class="mid pgl">${ws.length>1?`S${ws[0]}–S${ws.at(-1)}`:`S${ws[0]}`}</span><button class=mid data-act=histPg data-a="${pg+1}" ${pg<np-1?'':'disabled'} aria-label="Semanas siguientes">▶</button></div>`:''}`)}
+const maxW=b=>{let m=0;for(const k of['log','hechos'])for(const ws of Object.values(D[k][b]||{}))for(const w of Object.keys(ws))m=Math.max(m,+w);return m};
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='bsel'){HB=e.target.value;HWP=null;hist('',HB)}});
 const PG=9;function cambios(pg){pg=+pg||0;view=()=>cambios(pg);const H=histKg(),L=H.map((x,j)=>{let p;for(let k=j-1;k>=0;k--)if(H[k].exId===x.exId&&H[k].kg!=null){p=H[k].kg;break}return{...x,p}}).reverse(),n=Math.max(1,Math.ceil(L.length/PG));pg=Math.min(Math.max(0,pg),n-1);
  h(`${topBar('Cambios de kg')}${tabs('cam',HB||BLK())}<ul class="cl grow">${L.slice(pg*PG,pg*PG+PG).map(x=>`<li><span class=muted>${dm(x.f)}${x.mig?'*':''} · S${x.w||'–'} · ${esc(x.r)}</span> ${esc(short(x.e))}<br><b>${x.kg==null?'borrado':fmt(x.kg)+' kg'}</b>${x.kg!=null&&x.p!=null?` <span class=muted>(${sgn(x.kg-x.p)})</span>`:''}</li>`).join('')||'<li>Sin cambios todavía</li>'}</ul>
  <div class=row><button class=mid data-act=cambios data-a="${pg-1}" ${pg?'':'disabled'} aria-label="Más nuevos">◀</button><span class="mid pgl">${pg+1}/${n}</span><button class=mid data-act=cambios data-a="${pg+1}" ${pg<n-1?'':'disabled'} aria-label="Más viejos">▶</button></div>${H.some(x=>x.mig)?'<p class="muted sm2 c">* fecha aproximada (dato anterior a v7)</p>':''}`)}
+// ---------- Métricas (v10): sesiones completas por rutina ----------
+// Sesión completa = al menos el 50 % (>=) de los ejercicios de esa rutina que aplican esa semana (omitirEn; semana 7+ usa la lista de la última) marcados Hecho en esa semana de calendario.
+// Umbral = Math.ceil(n/2): 9 ejercicios → 5, 8 → 4. Lista vacía → no cuenta.
+// Frecuencia = veces que la rutina aparece en la agenda semanal del plan (mínimo 1). Como "Hecho" se guarda por ejercicio y semana, cuenta como máximo 1 sesión por semana.
+const freqDe=rid=>Math.max(1,Object.values(PL&&PL.agenda||{}).filter(a=>a&&a.rutina===rid).length);
+const exsW=(r,w)=>r.ejercicios.filter(e=>!(e.omitirEn||[]).includes(Math.min(Math.max(1,w),NW())));
+const sesionOk=(r,w)=>{const E=exsW(r,w);return E.length>0&&E.filter(e=>isDone(e.id,w)).length>=Math.ceil(E.length/2)};
+function kpi(r){const f=freqDe(r.id),cw=week(),hW=Math.max(cw,maxW(BLK())),tot=NW()*f;let done=0,hasta=0;for(let w=1;w<=hW;w++)if(sesionOk(r,w)){done++;if(w<=cw)hasta++}
+ const el=Math.max(1,cw)*f;return{done,tot,pct:Math.min(100,Math.round(done*100/tot)),extra:Math.max(0,done-tot),hasta,el,cpct:Math.min(100,Math.round(hasta*100/el))}}
+function metricas(){view=metricas;h(`${topBar('Métricas')}<h2>📈 Sesiones completas</h2><div class="grow mts">${RUTS().map(r=>{const k=kpi(r);return`<div class=mtc><p class=mtt>${esc(r.titulo)}</p><p class=mtn><b>${Math.min(k.done,k.tot)}/${k.tot}</b> · ${k.pct}%${k.extra?` <span class=mtx>(+${k.extra} extra)</span>`:''}</p><p class=mtd>Al día: ${k.hasta} de ${k.el} ${k.el===1?'semana':'semanas'} · ${k.cpct}%</p></div>`}).join('')}<p class="muted mtf">Cuenta la sesión con al menos la mitad de los ejercicios con ✓ Hecho esa semana.</p></div><button class=big data-act=home>← Volver</button>`)}
 // ---------- export CSV (bloque y exId al final de las tablas de kg; peso igual) ----------
 function download(txt,name,type){const u=URL.createObjectURL(new Blob([txt],{type})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);navigator.clipboard?.writeText(txt).catch(()=>{})}
 const cq=s=>'"'+String(s).replace(/"/g,'""').replace(/^([=+\-@])/,"'$1")+'"';
@@ -276,21 +294,21 @@ function exportar(){let csv='rutina,ejercicio,semana,kg,bloque,exId\n';for(const
  csv+='\n\nhistorico_peso\nfecha,semana_bloque,peso\n'+pesoOrd().map(x=>`${x.f},${x.w??''},${x.kg}`).join('\n')+`\n\nmeta_peso\n${D.meta}\n`;
  download(csv,'entrenamiento-respaldo.csv','text/csv');toast('✓ Respaldo descargado (y copiado)')}
 // ---------- S-1: acciones por delegación (sin onclick en línea) ----------
-const ACT={home:()=>{clearInterval(TI);home()},backEx:()=>{clearInterval(TI);ex()},timerI:a=>{const r=cur&&rut(cur.r),e=r&&exs(r)[+a];if(e){keepDraft();timer(descDe(eff(e)))}},storeOk:()=>{STORERR=false;afterUnlock()},
- hist:a=>hist(a),cambios:a=>cambios(a),peso:a=>peso(+a||0),resumen:a=>rut(a)&&resumen(a),start:a=>start(a),goEx:a=>goEx(a),done:a=>done(+a),
- actualizar,addP,ajustes,bioOff,bioOn,exportBad,exportar,hecho,unhecho,lockOff,resetData,setMeta,unlock,retryPlan};
+const ACT={home:()=>{clearInterval(TI);home()},backEx:()=>{clearInterval(TI);ex()},timerI:a=>{const r=cur&&rut(cur.r),e=r&&exs(r)[+a];if(e){keepDraft();timer(descDe(eff(e)))}},storeOk:()=>{STORERR=false;afterBoot()},
+ hist:a=>{if(a==null)HWP=null;hist(a)},histPg:a=>{HWP=Math.max(0,+a);hist(HCUR)},cambios:a=>cambios(a),peso:a=>peso(+a||0),resumen:a=>rut(a)&&resumen(a),start:a=>start(a),goEx:a=>goEx(a),done:a=>done(+a),
+ actualizar,addP,ajustes,metricas,exportBad,exportar,hecho,unhecho,resetData,borrarTodo,borrarSi,setMeta,retryPlan};
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-act]');if(!b||b.disabled||!own(ACT,b.dataset.act))return;e.preventDefault();ACT[b.dataset.act](b.dataset.a)});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('li[data-act]')){e.preventDefault();e.target.click()}});
 document.addEventListener('input',e=>{e.target.classList&&e.target.classList.remove('bad')});
 // ---------- service worker ----------
 if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js').then(reg=>{REG=reg;
- const chk=()=>{if(reg.waiting&&navigator.serviceWorker.controller&&!newVer){newVer=true;if((view===home)&&unlocked)home()}};chk();
+ const chk=()=>{if(reg.waiting&&navigator.serviceWorker.controller&&!newVer){newVer=true;if(view===home)home()}};chk();
  reg.addEventListener('updatefound',()=>{const n=reg.installing;n&&n.addEventListener('statechange',()=>{if(n.state==='installed')chk()})})}).catch(()=>{});
  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloading)location.reload()})}
 // ---------- arranque ----------
 async function boot(){D=loadAll();if(DIRTY&&!DATAERR&&!saveRaw())STORERR=true;
  const ok=planOk();if(ok)applyPlan(ok);
- const locked=!!(localStorage.getItem('gt_cred')&&WA);if(locked)lockScreen();
- const p=loadPlan();if(!PL)await p;else p.then(()=>{if(unlocked&&(view===home||view===noPlan))home()});
- if(!locked){unlocked=true;afterUnlock()}}
+ try{localStorage.removeItem('gt_cred');sessionStorage.removeItem('gt_fails')}catch(e){}// migración: el bloqueo ya no existe
+ const p=loadPlan();if(!PL)await p;else p.then(()=>{if(view===home||view===noPlan)home()});
+ afterBoot()}
 boot();

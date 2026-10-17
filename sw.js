@@ -1,6 +1,6 @@
-// Versionado de caché: subir C en CADA publicación de app (entreno-v9 → entreno-v10 …). Ver README "Publicar una versión nueva".
+// Versionado de caché: subir C en CADA publicación de app (entreno-v10 → entreno-v11 …). Ver README "Publicar una versión nueva".
 // plan.json NO requiere bump: va por red primero (S-2); Coach solo sube planVersion.
-const C='entreno-v9',F=['./','index.html','app.js','validar-plan.js','plan.json','manifest.json','icon.svg','icon-192.png','icon-512.png'],TO=3000;
+const C='entreno-v10',F=['./','index.html','app.js','validar-plan.js','plan.json','manifest.json','icon.svg','icon-192.png','icon-512.png'],TO=3000;
 const NETFIRST=['/','/index.html','/app.js','/validar-plan.js','/sw.js','/plan.json'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(F.map(f=>new Request(f,{cache:'reload'}))))));
 // Sin skipWaiting automático: la app muestra "Versión nueva → Actualizar" (solo en Inicio/Resumen) y manda este mensaje.
