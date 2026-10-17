@@ -1,5 +1,5 @@
 // entreno-app v8 — el plan vive en plan.json (lo edita Coach); acá queda solo la app. Diseño: plan-vs-app.md (FINAL).
-const APP_VERSION='8.0';// subir en cada versión de la app; plan.json puede pedir un mínimo con "minApp"
+const APP_VERSION='9.0';// subir en cada versión de la app; plan.json puede pedir un mínimo con "minApp"
 // Nombre visible de la app: cambiarlo SOLO acá (y en manifest.json name/short_name; ver README).
 const APP_NAME='Entreno';document.title=APP_NAME;
 const DN=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],DK=['dom','lun','mar','mie','jue','vie','sab'];
@@ -92,7 +92,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const fmt=v=>v===''||v==null?'':String(v).replace('.',',');
 // V7-02: ignora toques durante NAVMS tras cada cambio de pantalla (doble toque)
 const NAVMS=typeof window.__NAVLOCK_MS==='number'?window.__NAVLOCK_MS:600;let navUntil=0;
-document.addEventListener('click',e=>{if(Date.now()<navUntil&&e.target.closest&&e.target.closest('#app button,#app a,#app [data-act]')){e.preventDefault();e.stopImmediatePropagation()}},true);
+document.addEventListener('click',e=>{if((Date.now()<navUntil||hechoT)&&e.target.closest&&e.target.closest('#app button,#app a,#app [data-act]')){e.preventDefault();e.stopImmediatePropagation()}},true);
 function h(html){app().innerHTML=html;window.scrollTo(0,0);navUntil=Date.now()+NAVMS;fit()}
 // Elementos .opt (línea del bloque, banners en Resumen) solo se muestran si entran sin scroll
 function over(){const a=app();if(a.scrollHeight>a.clientHeight+1)return true;return[...a.querySelectorAll('.grow')].some(g=>{const b=g.getBoundingClientRect().bottom;return[...g.children].some(c=>c.getBoundingClientRect().bottom>b+1)})}
@@ -195,7 +195,7 @@ const descDe=e=>e.descanso??(PL.defaults&&PL.defaults.descanso)??'—';
 const vidUrl=id=>'https://www.youtube.com/watch?v='+encodeURIComponent(String(id||''));
 const nextPending=(r,i,w)=>{const n=exs(r).length;for(let k=1;k<n;k++){const j=(i+k)%n;if(!isDone(exs(r)[j].id,w))return j}return -1};
 function ex(){const r=rut(cur.r);if(!r)return home();ROUTINE=true;view=ex;const E=exs(r);if(cur.i>=E.length)cur.i=E.length-1;const i=cur.i,e0=E[i],e=eff(e0),G=grupoDe(E,i),w=week(),inB=inBlock(w),L=lastKg(e.id),done=inB&&isDone(e.id,w),val=cur.draft??fmt(L?L.kg:''),d=G&&!G.ultimo?'—':descDe(e);
- const np=done?nextPending(r,i,w):0,btn=!inB||!done?'✓ Hecho':np<0?'Terminar rutina ✓':'Siguiente pendiente →',sinD=G&&!G.ultimo;
+ const sinD=G&&!G.ultimo;
  // UX v8 (ux-revision.md "Campos nuevos del plan"): superserie en la fila .st; tempo en la línea de descanso/RPE; carga en línea propia; formato solo sin kg
  const ssTxt=G?esc(G.otros.map(corto).join(' y ')):'',ssLab=G?`aria-label="Superserie con ${ssTxt}"`:'';
  const st=done?`<div class=st>${G?`<p class=ss ${ssLab}>🔗 + ${ssTxt}</p>`:`<p class="muted sm2 hd">${esc(r.id)} · ${i+1}/${E.length}</p>`}<button class=chip data-act=unhecho aria-pressed=true aria-label="Hecho. Tocar para desmarcar">✓ HECHO</button></div>`
@@ -205,7 +205,7 @@ function ex(){const r=rut(cur.r);if(!r)return home();ROUTINE=true;view=ex;const 
  <div class="sr${[...e.series].length>14?' l':''}">${esc(e.series)}</div>${sinKg&&e.formato?`<p class=fmt>⏲ ${esc(e.formato)}</p>`:''}<p class=info>${sinD?'':`⏱️ ${esc(d)} · `}RPE ${esc(e.rpe)}${e.tempo?` · Tempo ${esc(e.tempo)}`:''}<span class=alt>🔄 ${esc(e.alternativa)}</span></p>${e.carga?`<p class=carga>🏋️ ${esc(e.carga)}</p>`:''}<div class=grow><p class=note>${esc(e.nota)}</p></div>
  ${sinKg?'':`<div class=kgrow><div class=lastbox>Última<br><b>${L?fmt(L.kg):'—'}</b>${L&&L.prev?'<small class=prevb>bloque ant.</small>':''}</div><label for=kg class=vh>Kilos</label><input id=kg class=kg type=text inputmode=decimal value="${esc(val)}" placeholder="kg"><span class=kgl>kg</span></div>`}
  <div class=row><a class="mid vid" href="${esc(vidUrl(e.video))}" target=_blank rel=noopener>Ver video ▶</a>${sinD?'<span class="mid nodesc">Sin descanso</span>':d!=='—'?`<button class=mid data-act=timerI data-a="${i}">⏱️ ${esc(d)}</button>`:''}</div>
- <div class="row nav3"><button class="mid nb arr" data-act=done data-a=-1 aria-label=Anterior>←</button><button class="mid nb neu" data-act=done data-a=1>Siguiente →</button><button class="mid nb acc hecho" data-act=hecho>${btn}</button></div>`);
+ <div class="row nav3"><button class="mid nb arr" data-act=done data-a=-1 aria-label=Anterior>←</button><button class="mid nb arr" data-act=done data-a=1 aria-label=Siguiente>→</button><button class="mid nb hecho${done?' on':''}" data-act=hecho aria-pressed=${done}>✓ Hecho</button></div>`);
  shrinkEx()}
 // Orden de reducción de UX si el ejercicio no entra: 1) alternativa en 1 línea, 2) series 44→36px, 3) carga a 18px dentro de "Última". La nota técnica nunca se recorta.
 function shrinkEx(){const a=app(),steps=[()=>a.querySelector('.info')?.classList.add('alt1'),()=>a.querySelector('.sr')?.classList.add('c'),()=>{const c=a.querySelector('.carga'),lb=a.querySelector('.lastbox');if(!c)return;if(lb){c.classList.add('inbox');lb.appendChild(c)}else c.classList.add('s18')}];
@@ -222,11 +222,16 @@ function saveKg(){const k=$('kg');if(!k)return true;const s=k.value.trim(),id=ru
  if(!lb||lb.kg!==v)addHist(id,v,w);if(!save())return false;if(prev!==v){navigator.vibrate&&navigator.vibrate(30);toast(`✓ Guardado: ${fmt(v)} kg (S${w})`)}return true}
 function done(d){if(saveKg())nav(d)}
 const completa=rid=>{cur.draft=undefined;resumen(rid);setTimeout(()=>toast('✓ Rutina completa 💪'),50)};
-// ✓ Hecho (único primario): guarda kg + marca + va al siguiente PENDIENTE (dando la vuelta); si no queda ninguno → Rutina completa
-function hecho(){if(!saveKg())return;const r=rut(cur.r),e=exs(r)[cur.i],w=week();
+// ✓ Hecho (v9): vacío (outline) si está pendiente; al tocarlo se llena (amarillo), guarda kg + marca y, tras HECHO_MS, va al siguiente PENDIENTE (dando la vuelta); si no queda ninguno → Rutina completa.
+// Las flechas ← → solo guardan kg y navegan: NUNCA marcan hecho. Al volver a un ejercicio hecho el botón se ve lleno.
+const HECHO_MS=typeof window.__HECHO_MS==='number'?window.__HECHO_MS:350;let hechoT=null;
+function hecho(){if(hechoT)return;if(!saveKg())return;const r=rut(cur.r),e=exs(r)[cur.i],w=week();
  if(!inBlock(w)){if(cur.i>=exs(r).length-1){cur.draft=undefined;return resumen(r.id)}return nav(1)}
- if(!isDone(e.id,w)){setDone(e.id,w,true);if(!save())return}
- const j=nextPending(r,cur.i,w);if(j<0)return completa(r.id);cur.draft=undefined;cur.i=j;ex()}
+ const go=()=>{hechoT=null;const j=nextPending(r,cur.i,w);if(j<0)return completa(r.id);cur.draft=undefined;cur.i=j;ex()};
+ if(isDone(e.id,w))return go();
+ setDone(e.id,w,true);if(!save())return;
+ const b=app().querySelector('[data-act=hecho]');if(b){b.classList.add('on');b.setAttribute('aria-pressed','true')}
+ navigator.vibrate&&navigator.vibrate(30);hechoT=setTimeout(()=>{if(view===ex)go();else hechoT=null},HECHO_MS)}
 function unhecho(){const r=rut(cur.r),w=week();if(!inBlock(w))return;keepDraft();setDone(exs(r)[cur.i].id,w,false);if(!save())return;ex();toast('Marcado como pendiente',false,{dur:1500})}
 function nav(d){const r=rut(cur.r);cur.draft=undefined;cur.i+=d;if(cur.i<0)cur.i=0;if(cur.i>=exs(r).length){view=home;ROUTINE=false;return h(`${topBar()}<div class=grow><h1 class=wk>Terminaste 💪</h1><p class="c today">¡Muy bien, Pablo!</p></div><button class="big acc" data-act=home>Inicio</button>`)}ex()}
 // ---------- peso (continuo, independiente del plan) ----------

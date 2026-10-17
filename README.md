@@ -25,7 +25,7 @@ El nombre visible es **Entreno**. Para cambiarlo:
 - El plan (bloque, rutinas, ejercicios, objetivos, agenda) vive en **`plan.json`** y lo edita Coach. La app lo carga con `fetch` + `JSON.parse` (no ejecuta nada) y lo valida con `validar-plan.js`.
 - Si el plan nuevo tiene un error, la app sigue con el último plan válido y muestra un aviso en Inicio. Si nunca hubo uno válido, muestra una pantalla con Reintentar, Ir a Peso y Exportar.
 - Guía para Coach (con checklist): `GUIA-COACH.md`. Antes de publicar: `node check-plan.mjs plan.json --prev <plan publicado>`.
-- `APP_VERSION` (en `app.js`, hoy `8.0`) y `minApp` (en el plan): si el plan pide una app más nueva, se avisa “actualizá la app” y se sigue con el anterior.
+- `APP_VERSION` (en `app.js`, hoy `9.0`) y `minApp` (en el plan): si el plan pide una app más nueva, se avisa “actualizá la app” y se sigue con el anterior.
 
 ## Datos (esquema 3, desde v8)
 
@@ -40,6 +40,7 @@ El nombre visible es **Entreno**. Para cambiarlo:
 
 - Pensada para leerse rápido en el gym: números grandes y alto contraste (fondo negro, texto blanco, acento amarillo).
 - Cada pantalla entra completa en el iPhone sin scroll vertical.
+- En cada ejercicio: flechas ← → para moverte (no marcan nada) y el botón **✓ Hecho**, vacío mientras el ejercicio está pendiente y amarillo cuando ya está hecho.
 
 ## Privacidad
 
@@ -77,7 +78,7 @@ App estática: sin dependencias ni paso de build. Se publica con GitHub Pages de
 ## Publicar una versión nueva
 
 1. Subí los archivos actualizados a `main`.
-2. **Si cambió la app** (`index.html`, `app.js`, `validar-plan.js`, `sw.js`, íconos), subí la versión de caché en `sw.js` (constante `C`): `entreno-v8` → `entreno-v9` → … (actual: `entreno-v8`) Un número por publicación, nunca repetir ni bajar.
+2. **Si cambió la app** (`index.html`, `app.js`, `validar-plan.js`, `sw.js`, íconos), subí la versión de caché en `sw.js` (constante `C`): `entreno-v9` → `entreno-v10` → … (actual: `entreno-v9`) Un número por publicación, nunca repetir ni bajar.
 3. **Si cambió solo el plan**: corré `node check-plan.mjs plan.json --prev <el publicado>`, subí `planVersion` y publicá solo `plan.json`. No hace falta tocar `sw.js`: el plan se pide a la red primero y llega solo (en Inicio aparece “✓ Plan actualizado”).
 4. Al abrir la app, `index.html`, `app.js` y `plan.json` se piden a la red primero (sin caché HTTP, con 3 s de espera máxima; si no hay señal se usa la copia guardada).
 5. Cuando el teléfono detecta la versión nueva, en **Inicio** aparece el aviso **"🔄 Versión nueva → Actualizar"**. Nunca aparece en medio de un ejercicio. Tocá Actualizar (o cerrá y volvé a abrir la app).
