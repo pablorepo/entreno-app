@@ -1,0 +1,379 @@
+{
+  "schema": 1,
+  "planVersion": 1,
+  "minApp": "8.0",
+  "notas_coach": "Plan del bloque 1. No cambiar los id. Subir planVersion en cada cambio.",
+  "notasComunes": {
+    "rodilla": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, usá la alternativa.",
+    "muneca": "Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá y consultá a tu médico."
+  },
+  "bloque": {
+    "id": "bloque-01",
+    "numero": 1,
+    "nombre": "Máquinas: hipertrofia + resistencia",
+    "inicio": "2026-10-19",
+    "semanas": 6,
+    "descarga": [
+      6
+    ]
+  },
+  "retirados": [],
+  "renombres": {},
+  "semanas": {
+    "1": {
+      "objetivo": "RPE 6-7: encontrá las cargas"
+    },
+    "2": {
+      "objetivo": "RPE 7-8"
+    },
+    "3": {
+      "objetivo": "RPE 8: si completaste las reps, sumá una placa"
+    },
+    "4": {
+      "objetivo": "+1 serie en los accesorios"
+    },
+    "5": {
+      "objetivo": "Semana pico 💥 RPE 8-9 en la última serie"
+    },
+    "6": {
+      "objetivo": "Descarga 🔋 mitad de las series, sin el final"
+    }
+  },
+  "agenda": {
+    "dom": {
+      "texto": "Descanso"
+    },
+    "lun": {
+      "rutina": "A"
+    },
+    "mar": {
+      "texto": "Funcional"
+    },
+    "mie": {
+      "rutina": "B"
+    },
+    "jue": {
+      "texto": "Hyrox"
+    },
+    "vie": {
+      "rutina": "C"
+    },
+    "sab": {
+      "texto": "Salida"
+    }
+  },
+  "rutinas": [
+    {
+      "id": "A",
+      "titulo": "A · Piernas y core",
+      "ejercicios": [
+        {
+          "id": "hack-squat",
+          "idViejo": "A0",
+          "nombre": "Hack squat o péndulo",
+          "series": "4×10",
+          "descanso": "2′",
+          "rpe": "7-8",
+          "alternativa": "V-squat",
+          "nota": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, usá la alternativa. Rango sin dolor.",
+          "video": "NEyKZhc5u5A",
+          "notaComun": "rodilla"
+        },
+        {
+          "id": "prensa-45",
+          "idViejo": "A1",
+          "nombre": "Prensa 45°",
+          "series": "3×12",
+          "descanso": "90″",
+          "rpe": "8",
+          "alternativa": "Sentadilla en Smith",
+          "nota": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, usá la alternativa.",
+          "video": "KdT2g0iSdG0",
+          "notaComun": "rodilla"
+        },
+        {
+          "id": "curl-femoral-acostado",
+          "idViejo": "A2",
+          "nombre": "Curl femoral acostado",
+          "series": "4×10-12",
+          "descanso": "60″",
+          "rpe": "8",
+          "alternativa": "Curl sentado",
+          "nota": "Cadera pegada al banco, subida y bajada controladas.",
+          "video": "9xbBr5Ytl8c"
+        },
+        {
+          "id": "extension-cuadriceps",
+          "idViejo": "A3",
+          "nombre": "Extensión de cuádriceps 90°→30°",
+          "series": "3×12-15",
+          "descanso": "60″",
+          "rpe": "8",
+          "alternativa": "A una pierna",
+          "nota": "Recorrido de 90° a 30°, sin bloquear la rodilla.",
+          "video": "U_OUPKqlWrQ"
+        },
+        {
+          "id": "abductora",
+          "idViejo": "A4",
+          "nombre": "Abductora",
+          "series": "3×15",
+          "descanso": "45″",
+          "rpe": "8",
+          "alternativa": "Abductora con discos",
+          "nota": "Espalda apoyada, abrí controlado y pausá afuera.",
+          "video": "2vCRMi-lgJ4"
+        },
+        {
+          "id": "aductora",
+          "idViejo": "A5",
+          "nombre": "Aductora",
+          "series": "3×15",
+          "descanso": "45″",
+          "rpe": "8",
+          "alternativa": "Aductor en polea",
+          "nota": "Cerrá controlado, sin rebote.",
+          "video": "O7co9-r7a6M"
+        },
+        {
+          "id": "gemelos-sentado",
+          "idViejo": "A6",
+          "nombre": "Gemelos sentado con discos",
+          "series": "3×15",
+          "descanso": "45″",
+          "rpe": "8-9",
+          "alternativa": "Gemelos en prensa",
+          "nota": "Estirá abajo, pausa arriba.",
+          "video": "rfkYC-mbQus"
+        },
+        {
+          "id": "pallof-press",
+          "idViejo": "A7",
+          "nombre": "Pallof press en polea",
+          "series": "3×10 por lado",
+          "descanso": "45″",
+          "rpe": "7",
+          "alternativa": "Pallof arrodillado",
+          "nota": "Que el tronco no gire. Brazos al frente y volvé lento.",
+          "video": "bYKor-nicRg"
+        },
+        {
+          "id": "elevacion-rodillas-silla-romana",
+          "idViejo": "A8",
+          "nombre": "Elevación de rodillas en silla romana",
+          "series": "3×12",
+          "descanso": "45″",
+          "rpe": "8",
+          "alternativa": "Crunch en polea",
+          "nota": "Sin balanceo, subí las rodillas al pecho.",
+          "video": "ioiS2KCeHKU"
+        }
+      ],
+      "notas_coach": "nota va siempre literal y completa; notaComun es solo una etiqueta para check-plan.mjs (la app la ignora)."
+    },
+    {
+      "id": "B",
+      "titulo": "B · Espalda, hombros y brazos",
+      "ejercicios": [
+        {
+          "id": "jalon-discos",
+          "idViejo": "B0",
+          "nombre": "Jalón con discos",
+          "series": "4×8-10",
+          "descanso": "2′",
+          "rpe": "8",
+          "alternativa": "Jalón en polea",
+          "nota": "Pecho arriba, bajá hacia el pecho. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá y consultá a tu médico.",
+          "video": "ZBxTTC9SSbA",
+          "notaComun": "muneca"
+        },
+        {
+          "id": "press-inclinado-hammer",
+          "idViejo": "B1",
+          "nombre": "Press inclinado con discos (Hammer)",
+          "series": "4×8-10",
+          "descanso": "2′",
+          "rpe": "7-8",
+          "alternativa": "Inclinado en Smith",
+          "nota": "Escápulas juntas, bajada controlada. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá y consultá a tu médico.",
+          "video": "YM90BrbZIBM",
+          "notaComun": "muneca"
+        },
+        {
+          "id": "remo-t-pecho-apoyado",
+          "idViejo": "B2",
+          "nombre": "Remo T con pecho apoyado",
+          "series": "4×10",
+          "descanso": "90″",
+          "rpe": "8",
+          "alternativa": "Remo en máquina",
+          "nota": "Pecho pegado al apoyo, tirá con los codos.",
+          "video": "GEgmkhrQgUM"
+        },
+        {
+          "id": "press-hombros-maquina",
+          "idViejo": "B3",
+          "nombre": "Press de hombros en máquina",
+          "series": "3×10",
+          "descanso": "90″",
+          "rpe": "7-8",
+          "alternativa": "Smith sentado",
+          "nota": "Sin arquear la espalda. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá y consultá a tu médico.",
+          "video": "NjZy28n8Qto",
+          "notaComun": "muneca"
+        },
+        {
+          "id": "pec-deck-invertido",
+          "idViejo": "B4",
+          "nombre": "Pec deck invertido",
+          "series": "3×15",
+          "descanso": "45″",
+          "rpe": "8",
+          "alternativa": "Face pull en polea",
+          "nota": "Brazos casi rectos, abrí hacia atrás.",
+          "video": "TtJmmR2RuHU"
+        },
+        {
+          "id": "laterales-polea",
+          "idViejo": "B5",
+          "nombre": "Laterales en polea",
+          "series": "3×12-15",
+          "descanso": "45″",
+          "rpe": "8-9",
+          "alternativa": "Laterales en máquina",
+          "nota": "Subí hasta el hombro, sin impulso.",
+          "video": "c7-4b6AmMDY"
+        },
+        {
+          "id": "curl-scott-z",
+          "idViejo": "B6",
+          "nombre": "Curl Scott con barra Z",
+          "series": "3×10",
+          "descanso": "60″",
+          "rpe": "8",
+          "alternativa": "Curl en polea",
+          "nota": "Agarrá la parte angulada. Bajada lenta.",
+          "video": "JtWyDc6U1pU"
+        },
+        {
+          "id": "triceps-polea",
+          "idViejo": "B7",
+          "nombre": "Tríceps en polea",
+          "series": "3×12",
+          "descanso": "60″",
+          "rpe": "8",
+          "alternativa": "Tríceps con cuerda",
+          "nota": "Codos pegados al cuerpo.",
+          "video": "FELcywKlkqE"
+        },
+        {
+          "id": "muneca-polea",
+          "idViejo": "B8",
+          "nombre": "Muñeca en polea, liviano (flexión y extensión)",
+          "series": "2×15",
+          "descanso": "45″",
+          "rpe": "6-7",
+          "alternativa": "Con mancuerna liviana",
+          "nota": "Carga liviana, movimiento lento. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá y consultá a tu médico.",
+          "video": "VvL6HKZuR6U",
+          "notaComun": "muneca"
+        }
+      ]
+    },
+    {
+      "id": "C",
+      "titulo": "C · Cadena posterior y potencia",
+      "ejercicios": [
+        {
+          "id": "prensa-explosiva",
+          "idViejo": "C0",
+          "nombre": "Prensa explosiva",
+          "series": "4×6",
+          "descanso": "90″",
+          "rpe": "Moderada",
+          "alternativa": "Hack explosivo",
+          "nota": "Bajá lento, empujá rápido. Carga moderada.",
+          "video": "iD2RMHckobU"
+        },
+        {
+          "id": "hip-thrust-maquina",
+          "idViejo": "C1",
+          "nombre": "Hip thrust en máquina",
+          "series": "4×10",
+          "descanso": "90″",
+          "rpe": "8",
+          "alternativa": "Hip thrust en Smith",
+          "nota": "Pausa arriba, apretá glúteos, mentón al pecho.",
+          "video": "gdUC0EFGWfQ"
+        },
+        {
+          "id": "rumano-smith",
+          "idViejo": "C2",
+          "nombre": "Rumano en Smith",
+          "series": "3×10",
+          "descanso": "2′",
+          "rpe": "7-8",
+          "alternativa": "Pull-through en polea",
+          "nota": "Cadera atrás, espalda neutra, barra cerca de las piernas.",
+          "video": "EZX8CYKTSSk"
+        },
+        {
+          "id": "remo-polea-baja-un-brazo",
+          "idViejo": "C3",
+          "nombre": "Remo en polea baja a un brazo",
+          "series": "3×10 por lado",
+          "descanso": "60″",
+          "rpe": "8",
+          "alternativa": "Remo en máquina",
+          "nota": "Tirá con el codo, sin girar el tronco.",
+          "video": "C7rxEp-078I"
+        },
+        {
+          "id": "hiperextension-45",
+          "idViejo": "C4",
+          "nombre": "Hiperextensión 45°",
+          "series": "3×12",
+          "descanso": "60″",
+          "rpe": "7-8",
+          "alternativa": "Máquina lumbar",
+          "nota": "Pausa arriba. Con disco al pecho cuando la domines.",
+          "video": "MpBAD9a3uD4"
+        },
+        {
+          "id": "patada-gluteo-maquina",
+          "idViejo": "C5",
+          "nombre": "Patada de glúteo en máquina",
+          "series": "3×12 por pierna",
+          "descanso": "60″",
+          "rpe": "8",
+          "alternativa": "Patada en polea",
+          "nota": "Sin arquear la zona lumbar.",
+          "video": "RT5ZuVCy5Ac"
+        },
+        {
+          "id": "rotadora-tronco",
+          "idViejo": "C6",
+          "nombre": "Rotadora de tronco",
+          "series": "3×10 por lado",
+          "descanso": "45″",
+          "rpe": "7",
+          "alternativa": "Woodchop en polea",
+          "nota": "Giro lento y controlado.",
+          "video": "4xMcrAd7VKY"
+        },
+        {
+          "id": "final-bike-eliptico",
+          "idViejo": "C7",
+          "nombre": "Final: assault bike o elíptico",
+          "series": "8×(30″ fuerte / 30″ suave)",
+          "descanso": "—",
+          "rpe": "8",
+          "alternativa": "Remo",
+          "nota": "En S6 (descarga) no se hace.",
+          "video": "Jtg4Rxag4BU",
+          "registraKg": false
+        }
+      ]
+    }
+  ]
+}

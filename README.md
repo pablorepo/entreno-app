@@ -20,14 +20,21 @@ El nombre visible es **Entreno**. Para cambiarlo:
 3. Opcional: en `index.html`, cambiá `<title>`. Es solo el valor inicial, porque `app.js` lo pisa.
 4. Subí la versión de caché en `sw.js` y volvé a agregar la app a inicio si querés ver el nombre nuevo en el ícono.
 
-## Datos (esquema 2, desde v7)
+## Plan y app (desde v8)
 
-- `log`: kg por ejercicio y semana (tabla del Historial).
-- `hist`: histórico **append-only** de cambios de kg (`ex`, `e` = ejercicio, `r` = rutina, `kg`, `f` = fecha ISO, `w` = semana). Nunca se edita ni se borra. Si vaciás un kg, se agrega un registro con `kg:null`.
-- `hechos`: ejercicios marcados con ✓ Hecho, por semana.
-- `peso`: histórico continuo y append-only por fecha (`kg`, `f`; `w` = semana del bloque o `null` fuera de él). Se guarda siempre, también fuera del bloque. Mismo valor el mismo día no se duplica. `meta`: meta de peso.
-- Al abrir la app con datos viejos (original o v6), se migran solos: cada kg viejo entra al histórico con la fecha de inicio de su semana, marcado como aproximado. Además queda una copia cruda en `gt_data_v0_backup` o `gt_data_v1_backup`.
-- El export CSV incluye la tabla por semana, `historico_kg`, `historico_peso` y la meta.
+- El plan (bloque, rutinas, ejercicios, objetivos, agenda) vive en **`plan.json`** y lo edita Coach. La app lo carga con `fetch` + `JSON.parse` (no ejecuta nada) y lo valida con `validar-plan.js`.
+- Si el plan nuevo tiene un error, la app sigue con el último plan válido y muestra un aviso en Inicio. Si nunca hubo uno válido, muestra una pantalla con Reintentar, Ir a Peso y Exportar.
+- Guía para Coach (con checklist): `GUIA-COACH.md`. Antes de publicar: `node check-plan.mjs plan.json --prev <plan publicado>`.
+- `APP_VERSION` (en `app.js`, hoy `8.0`) y `minApp` (en el plan): si el plan pide una app más nueva, se avisa “actualizá la app” y se sigue con el anterior.
+
+## Datos (esquema 3, desde v8)
+
+- Se guardan en `gt_data3`. `gt_data` (esquema 2) queda congelado como respaldo y esta app nunca lo escribe; si una app vieja agregó datos ahí, se suman sin duplicar.
+- `log[bloque][exId][semana]`: kg (tabla del Historial). `hechos[bloque][exId][semana]`: ✓ Hecho.
+- `hist`: histórico **append-only** de kg (`blockId`, `exId`, `e`, `r`, `kg`, `f`, `w`; `kg:null` = borrado). Los renombres del plan se anotan como `{tipo:'alias'}`.
+- `peso`: histórico continuo por fecha (`kg`, `f`, `w` = semana del bloque o `null`). `meta`: meta de peso (vive en la app, no en el plan).
+- Migración: los ids viejos (`A0`…`C8`) pasan a slugs con un mapa embebido en `app.js` (no depende de que `plan.json` cargue). Ids desconocidos quedan como `legacy-*`.
+- CSV: tabla por semana y `historico_kg` con `bloque,exId` al final; `historico_peso` y meta iguales que antes.
 
 ## Diseño
 
@@ -51,19 +58,29 @@ El nombre visible es **Entreno**. Para cambiarlo:
 | Archivo | Para qué sirve |
 |---|---|
 | `index.html` | Estructura y estilos de la app |
-| `app.js` | Lógica, plan de entrenamiento y guardado local |
+| `app.js` | Lógica, guardado local y migración |
+| `plan.json` | Plan de entrenamiento (lo edita Coach) |
+| `validar-plan.js` | Reglas de validación del plan (app y check-plan) |
+| `check-plan.mjs` | Chequeo antes de publicar el plan (`node check-plan.mjs`) |
+| `GUIA-COACH.md` | Guía y checklist para Coach |
+| `vocab-plan.txt`, `nombres-comunes.txt` | Listas de privacidad de check-plan |
 | `sw.js` | Service worker: modo offline y actualizaciones |
 | `manifest.json` | Configuración de la PWA (nombre, íconos, colores) |
 | `icon.svg`, `icon-192.png`, `icon-512.png` | Íconos |
 
 App estática: sin dependencias ni paso de build. Se publica con GitHub Pages desde la rama `main`, carpeta raíz.
 
+## Qué se publica
+- **Se sirve en Pages (la app los usa):** `index.html`, `app.js`, `validar-plan.js`, `plan.json`, `sw.js`, `manifest.json` y los íconos.
+- **Herramientas de edición (no se publican en este repo):** `GUIA-COACH.md`, `check-plan.mjs`, `vocab-plan.txt`, `nombres-comunes.txt`. Viven en el entorno de trabajo del equipo y se usan antes de cada publicación.
+
 ## Publicar una versión nueva
 
 1. Subí los archivos actualizados a `main`.
-2. **Siempre** subí la versión de caché en `sw.js` (constante `C`): `entreno-v7` → `entreno-v8` → … (actual: `entreno-v7`) Un número por publicación, nunca repetir ni bajar.
-3. Al abrir la app, `index.html` y `app.js` se piden a la red primero (sin caché HTTP, con 3 s de espera máxima; si no hay señal se usa la copia guardada).
-4. Cuando el teléfono detecta la versión nueva, en **Inicio** aparece el aviso **"🔄 Versión nueva → Actualizar"**. Nunca aparece en medio de un ejercicio. Tocá Actualizar (o cerrá y volvé a abrir la app).
+2. **Si cambió la app** (`index.html`, `app.js`, `validar-plan.js`, `sw.js`, íconos), subí la versión de caché en `sw.js` (constante `C`): `entreno-v8` → `entreno-v9` → … (actual: `entreno-v8`) Un número por publicación, nunca repetir ni bajar.
+3. **Si cambió solo el plan**: corré `node check-plan.mjs plan.json --prev <el publicado>`, subí `planVersion` y publicá solo `plan.json`. No hace falta tocar `sw.js`: el plan se pide a la red primero y llega solo (en Inicio aparece “✓ Plan actualizado”).
+4. Al abrir la app, `index.html`, `app.js` y `plan.json` se piden a la red primero (sin caché HTTP, con 3 s de espera máxima; si no hay señal se usa la copia guardada).
+5. Cuando el teléfono detecta la versión nueva, en **Inicio** aparece el aviso **"🔄 Versión nueva → Actualizar"**. Nunca aparece en medio de un ejercicio. Tocá Actualizar (o cerrá y volvé a abrir la app).
 
 ## Probar en local
 
