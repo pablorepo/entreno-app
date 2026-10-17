@@ -1,5 +1,5 @@
 // entreno-app v8 — el plan vive en plan.json (lo edita Coach); acá queda solo la app. Diseño: plan-vs-app.md (FINAL).
-const APP_VERSION='10.0';// subir en cada versión de la app; plan.json puede pedir un mínimo con "minApp"
+const APP_VERSION='11';// subir en cada versión de la app; plan.json puede pedir un mínimo con "minApp"
 // Nombre visible de la app: cambiarlo SOLO acá (y en manifest.json name/short_name; ver README).
 const APP_NAME='Entreno';document.title=APP_NAME;
 const DC=['dom','lun','mar','mié','jue','vie','sáb'],DN=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],DK=['dom','lun','mar','mie','jue','vie','sab'];
@@ -89,11 +89,38 @@ const short=n=>String(n).replace(/\s*\(.*?\)/g,'').replace(/,.*$/,'').replace('F
 const corto=e=>e.nombreCorto||short(e.nombre);
 // ---------- UI base ----------
 const $=id=>document.getElementById(id),app=()=>$('app');
+// ---------- v11: set de íconos propio (SVG inline, grilla 24, trazo 2,5, extremos/uniones redondeados, currentColor). Lámina: capturas-v11-propuesta/iconos.png ----------
+const ICP={
+inicio:'<path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/><path d="M10 20v-5h4v5"/>',
+check:'<path d="M4.5 12.5 9.5 17.5 19.5 6.5"/>',
+listo:'<circle cx="12" cy="12" r="9"/><path d="M7.5 12.5 10.5 15.5 16.5 9"/>',
+alerta:'<path d="M12 3.5 2.5 20h19Z"/><path d="M12 9.5v5"/><path d="M12 17.5h.01"/>',
+actualizar:'<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v4.5h-4.5"/>',
+alternativa:'<path d="M4 8h15"/><path d="M15.5 4.5 19 8l-3.5 3.5"/><path d="M20 16H5"/><path d="M8.5 12.5 5 16l3.5 3.5"/>',
+ajustes:'<circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="2.5"/><path d="M12 5.5v-3M12 18.5v3M5.5 12h-3M18.5 12h3M7.4 7.4 5.3 5.3M16.6 16.6l2.1 2.1M7.4 16.6l-2.1 2.1M16.6 7.4l2.1-2.1"/>',
+meta:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12h.01"/>',
+peso:'<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M7.5 10a6 6 0 0 1 9 0"/><path d="M12 10.5l1.5-2.5"/>',
+historial:'<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M9.5 9.5v10M15 9.5v10"/>',
+metricas:'<path d="M3.5 20h17"/><path d="M4.5 16 9.5 11l3.5 3.5 6.5-7"/><path d="M15 7.5h4.5V12"/>',
+exportar:'<path d="M12 3.5v11"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M4 16.5V19a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 20 19v-2.5"/>',
+borrar:'<path d="M4 6.5h16"/><path d="M9.5 6.5V4h5v2.5"/><path d="M6 6.5 7 20h10l1-13.5"/><path d="M10 10.5v6M14 10.5v6"/>',
+descanso:'<circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V10"/><path d="M9.5 2.5h5M12 2.5V6"/><path d="M18 6.5l1.5-1.5"/>',
+formato:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>',
+superserie:'<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/>',
+carga:'<path d="M7 6.5v11M17 6.5v11M3.5 9.5v5M20.5 9.5v5M7 12h10"/>',
+trofeo:'<path d="M7.5 4h9v5a4.5 4.5 0 0 1-9 0Z"/><path d="M7.5 6h-3a3.5 3.5 0 0 0 3.5 4.5M16.5 6h3a3.5 3.5 0 0 1-3.5 4.5"/><path d="M12 13.5V17M8.5 20.5h7M9.5 17h5v3.5"/>',
+atras:'<path d="M19.5 12h-15M10.5 6l-6 6 6 6"/>',
+siguiente:'<path d="M4.5 12h15M13.5 6l6 6-6 6"/>',
+izq:'<path d="M15 5l-7 7 7 7"/>',
+der:'<path d="M9 5l7 7-7 7"/>'};
+const ic=(n,c)=>`<svg class="ic${c?' '+c:''}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICP[n]}</svg>`;
+// v11: el contenido del plan puede traer emojis (objetivo de semana); en pantalla se quitan (el plan.json no se toca)
+const noEmo=t=>String(t??'').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu,'').replace(/\s{2,}/g,' ').trim();
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));// S-1: todo lo del plan pasa por acá
 const fmt=v=>v===''||v==null?'':String(v).replace('.',',');
 // V7-02: ignora toques durante NAVMS tras cada cambio de pantalla (doble toque)
 const NAVMS=typeof window.__NAVLOCK_MS==='number'?window.__NAVLOCK_MS:600;let navUntil=0;
-document.addEventListener('click',e=>{if((Date.now()<navUntil||hechoT)&&e.target.closest&&e.target.closest('#app button,#app a,#app [data-act]')){e.preventDefault();e.stopImmediatePropagation()}},true);
+document.addEventListener('click',e=>{if((Date.now()<navUntil||hechoT&&!(e.target.closest&&e.target.closest('[data-act=hecho]')))&&e.target.closest&&e.target.closest('#app button,#app a,#app [data-act]')){e.preventDefault();e.stopImmediatePropagation()}},true);
 function h(html){app().innerHTML=html;window.scrollTo(0,0);navUntil=Date.now()+NAVMS;fit();queueMicrotask(fitAll)}
 // UX v10: agranda la fuente hasta llenar el espacio sin desbordar (búsqueda binaria, entero de px). Corre después de shrinkEx (microtask al final de h()).
 function fitFont(el,min,max,ok){if(!el)return;el.style.fontSize=max+'px';if(ok())return;let lo=min,hi=max;el.style.fontSize=lo+'px';if(!ok())return;while(hi-lo>1){const m=Math.floor((lo+hi)/2);el.style.fontSize=m+'px';if(ok())lo=m;else hi=m}el.style.fontSize=lo+'px'}
@@ -101,6 +128,7 @@ function fitAll(){const a=app();if(!a)return;
  const tb=a.querySelector('.grow>table');if(tb){const no=()=>over()||tb.scrollWidth>tb.parentElement.clientWidth+1;// QA M-1/M-2: Historial siempre entero. 1) sin letra grande (.cn) si no entra; 2) último recurso: nombres en 2 líneas y corte en cualquier letra (.c2)
   if(tb.classList.contains('cn')&&no())tb.classList.add('cs');if(tb.classList.contains('cn')&&no())tb.classList.remove('cn','cs');if(no())tb.classList.add('c2')}
  const n=a.querySelector('.exg>.note');if(n){const t=a.querySelector('h2'),ts=t?Math.round(parseFloat(getComputedStyle(t).fontSize)):28;fitFont(n,Math.min(22,ts),ts,()=>!over())}// v10: cue del mismo tamaño que el título (h2); solo achica si no entra
+ const cl=a.querySelector('ul.cl.grow');if(cl)fitFont(cl,22,30,()=>!over()&&cl.scrollHeight<=cl.clientHeight+1);// v11: Peso y Cambios agrandan la letra si sobra alto
  const s=a.querySelector('ol.sum,ul.sum,.sum');if(s)fitFont(s,21,26,()=>!over()&&s.scrollHeight<=s.clientHeight+1);
  const t=a.querySelector('#tt');if(t&&!t.classList.contains('tdone'))fitFont(t,120,200,()=>t.scrollWidth<=t.parentElement.clientWidth&&!over())}
 addEventListener('resize',()=>fitAll());addEventListener('orientationchange',()=>setTimeout(fitAll,150));document.fonts&&document.fonts.ready.then(()=>fitAll());
@@ -110,24 +138,24 @@ function fit(){for(const el of[...app().querySelectorAll('.opt')]){if(!over())br
 // Toasts de a uno, en cola; los normales (Guardado) tienen prioridad sobre "Plan actualizado"
 let TT=null,TCUR=null,TQ=[];
 function toast(msg,bad,o={}){const it={msg,bad:!!bad,dur:o.dur||(bad?2500:1200),plan:!!o.plan};if(it.plan&&TCUR){TQ.push(it);return}if(!it.plan&&TCUR&&TCUR.plan)TQ.unshift(TCUR);showT(it)}
-function showT(it){document.querySelector('.toast')?.remove();clearTimeout(TT);TCUR=it;const t=document.createElement('div');t.className='toast'+(it.bad?' bad':'');t.setAttribute('role',it.bad?'alert':'status');t.setAttribute('aria-live',it.bad?'assertive':'polite');t.textContent=it.msg;document.body.appendChild(t);TT=setTimeout(()=>{t.remove();TCUR=null;const n=TQ.shift();if(n)showT(n)},it.dur)}
+function showT(it){document.querySelector('.toast')?.remove();clearTimeout(TT);TCUR=it;const t=document.createElement('div');t.className='toast'+(it.bad?' bad':'');t.setAttribute('role',it.bad?'alert':'status');t.setAttribute('aria-live',it.bad?'assertive':'polite');{let m=String(it.msg),pre='',post='';if(it.bad)pre=ic('alerta');else if(m.startsWith('✓ ')){pre=ic('check');m=m.slice(2)}if(m.endsWith(' 💪')){m=m.slice(0,-3);post=ic('trofeo')}t.innerHTML=pre+`<span>${esc(m)}</span>`+post}document.body.appendChild(t);TT=setTimeout(()=>{t.remove();TCUR=null;const n=TQ.shift();if(n)showT(n)},it.dur)}
 // ---------- v10: sin bloqueo (Pablo, 17/10 10:27): se quitó el bloqueo con huella/cara por completo. Migración: al arrancar se borran gt_cred y gt_fails; los datos no se tocan ----------
 let resume=null;
 function afterBoot(){if(DATAERR)return dataError();if(STORERR)return storageError();if(!PL)return noPlan();const r=resume;resume=null;(r||home)()}
 function keepDraft(){const k=$('kg');if(k&&cur)cur.draft=k.value}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)keepDraft();else REG&&REG.update().catch(()=>{})});
-function dataError(){view=dataError;h(`<div class=grow><div class=wk>⚠️</div><h1 class=today>No se pudieron leer los datos guardados.</h1><p style="font-size:22px;margin-top:10px">Guardé una copia. Podés exportarla o empezar de cero.</p></div>
- <button class=big data-act=exportBad>💾 Exportar copia</button><button class="big acc" data-act=resetData>Empezar de cero</button>`)}
+function dataError(){view=dataError;h(`<div class=grow><div class=wk>${ic('alerta','em')}</div><h1 class=today>No se pudieron leer los datos guardados.</h1><p style="font-size:22px;margin-top:10px">Guardé una copia. Podés exportarla o empezar de cero.</p></div>
+ <button class="big bi" data-act=exportBad>${ic('exportar')}Exportar copia</button><button class="big acc bi" data-act=resetData>${ic('borrar')}Empezar de cero</button>`)}
 function exportBad(){download(localStorage.getItem('gt_data_bad')||BADRAW||'','entrenamiento-copia-datos.txt','text/plain');toast('✓ Copia exportada')}
-function storageError(){view=storageError;h(`<div class=grow><div class=wk>⚠️</div><h1 class=today>No hay espacio para guardar los datos.</h1><p style="font-size:22px;margin-top:10px">Tus datos están cargados, pero no se pudieron guardar en el celular. Exportá un respaldo ahora.</p></div>
- <button class="big acc" data-act=exportar>💾 Exportar respaldo</button><button class=big data-act=storeOk>Seguir igual</button>`)}
+function storageError(){view=storageError;h(`<div class=grow><div class=wk>${ic('alerta','em')}</div><h1 class=today>No hay espacio para guardar los datos.</h1><p style="font-size:22px;margin-top:10px">Tus datos están cargados, pero no se pudieron guardar en el celular. Exportá un respaldo ahora.</p></div>
+ <button class="big acc bi" data-act=exportar>${ic('exportar')}Exportar respaldo</button><button class="big bi" data-act=storeOk>Seguir igual${ic('siguiente')}</button>`)}
 // Borrar todos los datos (v10): pantalla de confirmación + confirm() final. Borra kilos, hechos, historial, peso, meta y copias viejas (gt_data3, gt_data, gt_data_bad).
 // NO toca el plan (gt_plan_ok).
-function borrarTodo(){view=borrarTodo;h(`${topBar()}<h1>🗑️ Borrar todos los datos</h1><div class=grow>
+function borrarTodo(){view=borrarTodo;h(`${topBar()}<h1 class=ttl>${ic('borrar')}Borrar todos los datos</h1><div class=grow>
  <p style="font-size:22px;margin:8px 0">Se borran <b>todos</b> tus registros de este celular: kilos, ejercicios hechos, historial, peso corporal y meta.</p>
  <p class=muted style="margin:8px 0">No se puede deshacer. Si querés guardar una copia, exportá un respaldo antes.</p>
  <p class=muted style="margin:8px 0">El plan se mantiene.</p></div>
- <button class=big data-act=exportar>💾 Exportar respaldo</button><button class="big del" data-act=borrarSi>Sí, borrar todo</button><button class=big data-act=ajustes>Cancelar</button>`)}
+ <button class="big bi" data-act=exportar>${ic('exportar')}Exportar respaldo</button><button class="big del2 bi" data-act=borrarSi>${ic('borrar')}Sí, borrar todo</button><button class="big bi" data-act=ajustes>${ic('atras')}Cancelar</button>`)}
 let BORRANDO=false;
 async function borrarSi(){if(BORRANDO)return;if(!confirm('¿Seguro? Se borran todos los datos de la app y no se pueden recuperar.'))return;
  BORRANDO=true;try{
@@ -143,8 +171,10 @@ function applyPlan(o){PL=o;START=isoDay(o.bloque.inicio);let ch=false;
  for(const[de,a]of Object.entries(o.renombres||{}))if(!D.hist.some(x=>x.tipo==='alias'&&x.blockId===o.bloque.id&&x.de===de&&x.a===a)){D.hist.push({tipo:'alias',blockId:o.bloque.id,de,a,f:new Date().toISOString()});ch=true}
  if(ch&&!DATAERR)saveRaw()}
 const planFail=(msg,upd)=>{PLERR={msg:String(msg),upd:!!upd};console.warn('plan.json:',msg);return false};
+// v11 (QA B-12): si plan.json no responde en 8 s (primera instalación con mala señal) → 'No se pudo cargar el plan' en vez de 'Cargando…' infinito
+const PLAN_TO=typeof window.__PLAN_TO==='number'?window.__PLAN_TO:8000;
 async function loadPlan(){let res,txt,fromCache=false;
- try{res=await fetch('plan.json',{cache:'no-cache'});fromCache=res.headers.get('x-from-cache')==='1';if(!res.ok)throw new Error('HTTP '+res.status);txt=await res.text()}catch(e){return planFail('No se pudo descargar el plan ('+e.message+')')}
+ try{const ac=typeof AbortController==='function'?new AbortController():null,tm=setTimeout(()=>ac&&ac.abort(),PLAN_TO);try{res=await fetch('plan.json',{cache:'no-cache',signal:ac?ac.signal:undefined});txt=res.ok?await res.text():''}catch(e){throw e.name==='AbortError'?new Error('sin respuesta en '+PLAN_TO/1000+' s'):e}finally{clearTimeout(tm)}fromCache=res.headers.get('x-from-cache')==='1';if(!res.ok)throw new Error('HTTP '+res.status)}catch(e){return planFail('No se pudo descargar el plan ('+e.message+')')}
  if(txt.length>65536)return planFail('plan.json supera 64 KB');
  let o;try{o=JSON.parse(txt)}catch(e){return planFail('plan.json no es JSON válido')}
  const prev=planOk(),b=o&&o.bloque&&o.bloque.id;
@@ -157,40 +187,39 @@ async function loadPlan(){let res,txt,fromCache=false;
  PLERR=null;if(changed&&prev)PLTOAST='✓ Plan actualizado: Bloque '+o.bloque.numero;
  if(!PL||!ROUTINE)applyPlan(o);else PLNEXT=o;return true}
 function retryPlan(){loadPlan().then(ok=>{if(ok)toast('✓ Plan cargado');if(!PL)return noPlan();home()})}
-function noPlan(){view=noPlan;h(`<div class=grow><div class=wk>⚠️</div><h1 class=today>No se pudo cargar el plan de entrenamiento.</h1><p style="font-size:22px;margin-top:10px">Tus kg y tu peso están guardados. Probá de nuevo con conexión.</p></div>
- <button class="big acc" data-act=retryPlan>Reintentar</button><div class=row><button class=mid data-act=peso>⚖️ Ir a Peso</button><button class=mid data-act=exportar>💾 Exportar</button></div>`)}
+function noPlan(){view=noPlan;h(`<div class=grow><div class=wk>${ic('alerta','em')}</div><h1 class=today>No se pudo cargar el plan de entrenamiento.</h1><p style="font-size:22px;margin-top:10px">Tus kg y tu peso están guardados. Probá de nuevo con conexión.</p></div>
+ <button class="big acc bi" data-act=retryPlan>${ic('actualizar')}Reintentar</button><div class=row><button class="mid bi" data-act=peso>${ic('peso')}Peso</button><button class="mid bi" data-act=exportar>${ic('exportar')}Exportar</button></div>`)}
 // ---------- banners (solo Inicio y Resumen, nunca en una rutina) ----------
 let REG=null,newVer=false,reloading=false;
 function banners(){const two=newVer&&PLERR,o=[];
- if(newVer)o.push(`<div class=banner role=status><span>🔄 Versión nueva</span><button data-act=actualizar>Actualizar</button></div>`);
- if(PLERR)o.push(PLERR.upd?`<div class="banner warn" role=alert><span>⚠️ Plan nuevo: actualizá la app</span><button data-act=actualizar>Actualizar</button></div>`:`<div class="banner warn" role=alert><span>${two?'⚠️ Plan nuevo no cargó':'⚠️ No se pudo cargar el plan nuevo'}</span><button data-act=retryPlan>Reintentar</button></div>`);
+ if(newVer)o.push(`<div class=banner role=status>${ic('actualizar')}<span>Versión nueva</span><button data-act=actualizar>Actualizar</button></div>`);
+ if(PLERR)o.push(PLERR.upd?`<div class="banner warn" role=alert>${ic('alerta')}<span>Plan nuevo: actualizá la app</span><button data-act=actualizar>Actualizar</button></div>`:`<div class="banner warn" role=alert>${ic('alerta')}<span>${two?'Plan nuevo no cargó':'No se pudo cargar el plan nuevo'}</span><button data-act=retryPlan>Reintentar</button></div>`);
  return{html:o.join(''),n:o.length}}
 function actualizar(){reloading=true;if(REG&&REG.waiting)REG.waiting.postMessage('skipWaiting');else location.reload()}
-function ajustes(){view=ajustes;h(`${topBar()}<h1>⚙️ Ajustes</h1><div class=grow>
- <p class=muted style="margin:12px 0">Tus datos quedan solo en este celular. Exportá un respaldo de vez en cuando.</p><button class="big" data-act=exportar>💾 Exportar respaldo</button>
- <button class="big del" data-act=borrarTodo style="margin-top:12px">🗑️ Borrar todos los datos</button>
- <p class="muted sm2" style="margin-top:12px">App ${APP_VERSION}${PL?` · Plan v${PL.planVersion} · Bloque ${PL.bloque.numero}`:''}</p>${PLERR?`<p class="err sm2">Plan: ${esc(PLERR.msg)}</p>`:''}${PLWARN.length?`<p class="muted sm2">Avisos del plan: ${PLWARN.length} (${esc(PLWARN[0])})</p>`:''}</div>`)}
+function ajustes(){view=ajustes;h(`${topBar()}<h1 class=ttl>${ic('ajustes')}Ajustes</h1><div class="grow aj">
+ <p class=muted style="margin:12px 0">Tus datos quedan solo en este celular. Exportá un respaldo de vez en cuando.</p><button class="big bi" data-act=exportar>${ic('exportar')}Exportar respaldo</button>
+ <button class="big del bi" data-act=borrarTodo style="margin-top:16px">${ic('borrar')}Borrar todos los datos</button>
+ <p class="muted sm2" style="margin-top:12px">App ${APP_VERSION}${PL?` · Plan v${PL.planVersion} · Bloque ${PL.bloque.numero}`:''}</p>${PLERR?`<p class="err sm2">${ic('alerta')} Plan: ${esc(PLERR.msg)}</p>`:''}${PLWARN.length?`<p class="muted sm2">Avisos del plan: ${PLWARN.length} (${esc(PLWARN[0])})</p>`:''}</div>`)}
 const wtxt=w=>`Semana ${w} de ${NW()}${w<=NW()&&isDesc(w)?' · Descarga':''}`;
 function wlabel(){return wtxt(week())}
-const topBar=(t)=>`<div class=top><button class=back data-act=home>⌂ Inicio</button><span class=wl>${wlabel()}</span></div>${t?`<h1 class=vh>${esc(t)}</h1>`:''}`;
+const topBar=(t)=>`<div class=top><button class="back bi" data-act=home>${ic('inicio')}Inicio</button><span class=wl>${wlabel()}</span></div>${t?`<h1 class=vh>${esc(t)}</h1>`:''}`;
 // ---------- home ----------
 function home(){ROUTINE=false;if(PLNEXT){applyPlan(PLNEXT);PLNEXT=null}if(!PL)return noPlan();view=home;
  const w=week(),dw=new Date().getDay(),ag=PL.agenda[DK[dw]]||{},B=banners();
  const wt=wtxt(w),we=wEff();
- const wn=PL.semanas&&PL.semanas[we]&&PL.semanas[we].nota?`<p class="wnote${B.n>1?' one':''}">${esc(PL.semanas[we].nota)}</p>`:'';
- const obj=B.n<2&&PL.semanas&&PL.semanas[we]?`<p class=obj>🎯 ${esc(PL.semanas[we].objetivo)}</p>`:'';
+ const wn=PL.semanas&&PL.semanas[we]&&PL.semanas[we].nota?`<p class="wnote${B.n>1?' one':''}">${esc(noEmo(PL.semanas[we].nota))}</p>`:'';
+ const obj=B.n<2&&PL.semanas&&PL.semanas[we]?`<p class=obj>${ic('meta')} ${esc(noEmo(PL.semanas[we].objetivo))}</p>`:'';
  h(`${B.html}<p class=brand>${APP_NAME}</p><h1 class=wk>${wt}</h1><p class="blk opt">Bloque ${PL.bloque.numero} · ${esc(PL.bloque.nombre)}</p><p class=ini>Inicio del plan: ${DC[START.getDay()]} ${dmShort(START)}/${START.getFullYear()}</p>${obj}${wn}
  <p class=today>Hoy (${DN[dw]}): <b>${esc(ag.rutina?'Rutina '+ag.rutina:ag.texto||'')}</b></p><div class=grow></div>
  ${RUTS().map(r=>`<button class="big ${r.id===ag.rutina?'acc':''}" data-act=resumen data-a="${esc(r.id)}">${esc(r.titulo)}</button>`).join('')}
- <div class="row pwr"><label for=pk>⚖️ Peso</label><input id=pk class=meta inputmode=decimal value="${D.peso.length?fmt(pesoOrd().at(-1).kg):''}" placeholder="kg"><span>kg</span><button class=mid data-act=addP>Guardar</button></div>
- <div class="row hrow"><button class=mid data-act=peso>⚖️ Peso</button><button class=mid data-act=hist>📊 Historial</button><button class="mid mtb" data-act=metricas aria-label=Métricas>📈</button><button class=mid data-act=ajustes aria-label=Ajustes>⚙️</button></div>`);
+ <div class="hgrid${B.n>1?' b2':''}"><button class="mid bi" data-act=peso>${ic('peso')}Peso</button><button class="mid bi" data-act=hist>${ic('historial')}Historial</button><button class="mid bi" data-act=metricas>${ic('metricas')}Métricas</button><button class="mid bi" data-act=ajustes>${ic('ajustes')}Ajustes</button></div><p class=ver>Versión ${APP_VERSION}</p>`);
  if(PLTOAST){toast(PLTOAST,false,{plan:true,dur:2500});PLTOAST=null}}
 // ---------- resumen + guía ----------
 const firstPending=r=>{const w=week();return inBlock(w)?exs(r).findIndex(e=>!isDone(e.id,w)):0};
 function resumen(rid){const r=rut(rid);if(!r)return home();if(!cur||cur.r!==rid)cur={r:rid,i:0};ROUTINE=true;view=()=>resumen(rid);const w=week(),inB=inBlock(w),B=banners(),fp=firstPending(r);
- h(`${topBar()}${B.html.replace(/class="banner/g,'class="opt banner').replace(/class=banner/g,'class="opt banner"')}<h2>${esc(r.titulo)}${inB?` <span class=cnt>${exs(r).filter(e=>isDone(e.id,w)).length}/${exs(r).length} ✓</span>`:''}</h2><ol class="sum grow">${exs(r).map((e,i)=>{const L=lastKg(e.id),ok=inB&&isDone(e.id,w);
-  return`<li data-act=goEx data-a="${i}" role=button tabindex=0>${ok?'<span class=ok aria-label=Hecho>✓</span>':`<span class=no>${i+1}</span>`}<span class=tx><span class=nm2>${e.grupo&&grupoDe(exs(r),i)?'🔗':''}${esc(corto(e))}</span> <b>${esc(eff(e).series).replace(' por lado',' c/lado').replace(' por pierna',' c/pierna').replace('(30″ fuerte / 30″ suave)','(30″/30″)')}${L?` · ${fmt(L.kg)} kg`:''}</b></span></li>`}).join('')}</ol>
- <button class="big acc" data-act=start data-a="${esc(rid)}">${fp<0?'Repasar ▶':'Empezar ▶'}</button>`)}
+ h(`${topBar()}${B.html.replace(/class="banner/g,'class="opt banner').replace(/class=banner/g,'class="opt banner"')}<h2>${esc(r.titulo)}${inB?` <span class=cnt>${exs(r).filter(e=>isDone(e.id,w)).length}/${exs(r).length} ${ic('check')}</span>`:''}</h2><ol class="sum grow">${exs(r).map((e,i)=>{const L=lastKg(e.id),ok=inB&&isDone(e.id,w);
+  return`<li data-act=goEx data-a="${i}" role=button tabindex=0>${ok?`<span class=ok role=img aria-label=Hecho>${ic('check')}</span>`:`<span class=no>${i+1}</span>`}<span class=tx><span class=nm2>${e.grupo&&grupoDe(exs(r),i)?ic('superserie'):''}${esc(corto(e))}</span> <b>${esc(eff(e).series).replace(' por lado',' c/lado').replace(' por pierna',' c/pierna').replace('(30″ fuerte / 30″ suave)','(30″/30″)')}${L?` · ${fmt(L.kg)} kg`:''}</b></span></li>`}).join('')}</ol>
+ <button class="big acc bi" data-act=start data-a="${esc(rid)}">${fp<0?'Repasar':'Empezar'}${ic('der')}</button>`)}
 function start(rid){const r=rut(rid);if(!r)return;const fp=firstPending(r);cur={r:rid,i:fp<0?0:fp};ex()}
 function goEx(i){const r=rut(cur&&cur.r||'');if(!r)return;cur={r:r.id,i:Math.min(Math.max(0,+i||0),exs(r).length-1)};ex()}
 // v8.1: semana efectiva (antes del bloque = semana 1; después = última), ejercicios visibles (omitirEn) y valores por semana (porSemana)
@@ -205,21 +234,21 @@ function ex(){const r=rut(cur.r);if(!r)return home();ROUTINE=true;view=ex;const 
  const sinD=G&&!G.ultimo;
  // UX v8 (ux-revision.md "Campos nuevos del plan"): superserie en la fila .st; tempo en la línea de descanso/RPE; carga en línea propia; formato solo sin kg
  const ssTxt=G?esc(G.otros.map(corto).join(' y ')):'',ssLab=G?`aria-label="Superserie con ${ssTxt}"`:'';
- const st=done?`<div class=st>${G?`<p class=ss ${ssLab}>🔗 + ${ssTxt}</p>`:`<p class="muted sm2 hd">${esc(r.titulo)}</p>`}<button class=chip data-act=unhecho aria-pressed=true aria-label="Hecho. Tocar para desmarcar">✓ HECHO</button></div>`
-  :G?`<div class=st><p class=ss>🔗 Superserie con ${ssTxt}</p></div>`:`<p class="muted sm2 hd">${esc(r.titulo)}</p>`;
+ // v11 (BACKLOG): sin cartel/chip HECHO arriba; el estado lo muestra solo el botón Hecho (relleno = hecho, borde = pendiente)
+ const st=G?`<div class=st><p class=ss ${ssLab}>${ic('superserie')}<span>Superserie con ${ssTxt}</span></p></div>`:`<p class="muted sm2 hd">${esc(r.titulo)}</p>`;
  const sinKg=e0.registraKg===false;
  h(`${topBar('Entrenamiento')}${st}<h2><span class=vh>Ejercicio ${i+1} de ${E.length}: </span><span class=exn aria-hidden=true>${i+1}/${E.length}</span> ${esc(e.nombre)}</h2>
- <div class="grow exg"><i class=sp0></i><div class="sr${[...e.series].length>14?' l':''}">${esc(e.series)}</div>${sinKg&&e.formato?`<p class=fmt>⏲ ${esc(e.formato)}</p>`:''}<i class=sp></i><p class=info>${sinD?'':`⏱️ ${esc(d)} · `}RPE ${esc(e.rpe)}${e.tempo?` · Tempo ${esc(e.tempo)}`:''}<span class=alt>🔄 ${esc(e.alternativa)}</span></p>${e.carga?`<p class=carga>🏋️ ${esc(e.carga)}</p>`:''}<i class=sp></i><p class=note>${esc(e.nota)}</p><i class=sp0></i></div>
+ <div class="grow exg"><i class=sp0></i><div class="sr${[...e.series].length>14?' l':''}">${esc(e.series)}</div>${sinKg&&e.formato?`<p class=fmt>${ic('formato')} ${esc(e.formato)}</p>`:''}<i class=sp></i><p class=info>${sinD?'':`${ic('descanso')} ${esc(d)} · `}RPE ${esc(e.rpe)}${e.tempo?` · Tempo ${esc(e.tempo)}`:''}<span class=alt>${ic('alternativa')} ${esc(e.alternativa)}</span></p>${e.carga?`<p class=carga>${ic('carga')} ${esc(e.carga)}</p>`:''}<i class=sp></i><p class=note>${esc(e.nota)}</p><i class=sp0></i></div>
  ${sinKg?'':`<div class=kgrow><div class=lastbox>Última<br><b>${L?fmt(L.kg):'—'}</b>${L&&L.prev?'<small class=prevb>bloque ant.</small>':''}</div><label for=kg class=vh>Kilos</label><input id=kg class=kg type=text inputmode=decimal value="${esc(val)}" placeholder="kg"><span class=kgl>kg</span></div>`}
- <div class=row><a class="mid vid" href="${esc(vidUrl(e.video))}" target=_blank rel=noopener aria-label="Ver video del ejercicio">Video</a>${sinD?'<span class="mid nodesc">Sin descanso</span>':d!=='—'?`<button class=mid data-act=timerI data-a="${i}">⏱️ ${esc(d)}</button>`:''}</div>
- <div class="row nav3"><button class="mid nb arr" data-act=done data-a=-1 aria-label=Anterior>←</button><button class="mid nb arr" data-act=done data-a=1 aria-label=Siguiente>→</button><button class="mid nb hecho${done?' on':''}" data-act=hecho aria-pressed=${done}>✓ Hecho</button></div>`);
+ <div class=row><a class="mid vid" href="${esc(vidUrl(e.video))}" target=_blank rel=noopener aria-label="Ver video del ejercicio">Video</a>${sinD?'<span class="mid nodesc">Sin descanso</span>':d!=='—'?`<button class="mid bi" data-act=timerI data-a="${i}">${ic('descanso')}${esc(d)}</button>`:''}</div>
+ <div class="row nav3"><button class="mid nb arr" data-act=done data-a=-1 aria-label=Anterior>${ic('atras')}</button><button class="mid nb arr" data-act=done data-a=1 aria-label=Siguiente>${ic('siguiente')}</button><button class="mid nb hecho bi${done?' on':''}" data-act=hecho aria-pressed=${done}>${ic('check')}Hecho</button></div>`);
  shrinkEx()}
 // Orden de reducción de UX si el ejercicio no entra: 1) alternativa en 1 línea, 2) series 44→36px, 3) carga a 18px dentro de "Última". La nota técnica nunca se recorta (mín. 22px; fitAll la agranda hasta 44px si sobra alto).
-function shrinkEx(){const a=app(),steps=[()=>a.querySelector('.info')?.classList.add('alt1'),()=>a.querySelector('.sr')?.classList.add('c'),()=>{const c=a.querySelector('.carga'),lb=a.querySelector('.lastbox');if(!c)return;if(lb){c.classList.add('inbox');lb.appendChild(c)}else c.classList.add('s18')}];
+function shrinkEx(){const a=app(),steps=[()=>a.querySelector('.info')?.classList.add('alt1'),()=>a.querySelector('.sr')?.classList.add('c'),()=>{const c=a.querySelector('.carga'),lb=a.querySelector('.lastbox');if(!c)return;if(lb){c.classList.add('inbox');lb.appendChild(c)}else c.classList.add('s18')},()=>a.querySelector('.exg')?.classList.add('tight')];// v11: 4) separadores del bloque central a 4px
  for(const s of steps){if(!over())break;s()}}
 let TI=null;function timer(s){view=ex;clearInterval(TI);let t=s.includes('′')?parseInt(s)*60:parseInt(s);const f=()=>`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
- h(`${topBar('Descanso')}<p class=today>Descanso</p><div class=grow style="display:flex;align-items:center;justify-content:center"><div class=tbig id=tt aria-live=polite>${f()}</div></div><button class="big acc" data-act=backEx>Volver al ejercicio</button>`);
- TI=setInterval(()=>{t--;const el=$('tt');if(!el)return clearInterval(TI);el.textContent=t>0?f():'¡Dale! ✅';if(t<=0){clearInterval(TI);el.style.fontSize='';el.classList.add('tdone');fitFont(el,48,90,()=>el.scrollWidth<=el.parentElement.clientWidth);navigator.vibrate&&navigator.vibrate([400,200,400])}},1000)}
+ h(`${topBar('Descanso')}<p class=today>Descanso</p><div class=grow style="display:flex;align-items:center;justify-content:center"><div class=tbig id=tt aria-live=polite>${f()}</div></div><button class="big acc bi" data-act=backEx>${ic('atras')}Volver al ejercicio</button>`);
+ TI=setInterval(()=>{t--;const el=$('tt');if(!el)return clearInterval(TI);if(t>0)el.textContent=f();else el.innerHTML=`¡Dale! ${ic('listo','em')}`;if(t<=0){clearInterval(TI);el.style.fontSize='';el.classList.add('tdone');fitFont(el,48,90,()=>el.scrollWidth<=el.parentElement.clientWidth);navigator.vibrate&&navigator.vibrate([400,200,400])}},1000)}
 function addHist(id,kg,w){D.hist.push({blockId:BLK(),exId:id,e:nombreDe(id),r:cur.r,kg,f:new Date().toISOString(),w})}// append-only
 function saveKg(){const k=$('kg');if(!k)return true;const s=k.value.trim(),id=exs(rut(cur.r))[cur.i].id,w=week(),inB=inBlock(w),Lb=logB(BLK());
  if(s===''){if(inB&&logGet(BLK(),id,w)!=null){for(const x of aliases(id))if(Lb[x])delete Lb[x][w];addHist(id,null,w);if(!save())return false;toast(`✓ Borrado (S${w})`)}return true}
@@ -232,29 +261,34 @@ const completa=rid=>{cur.draft=undefined;resumen(rid);setTimeout(()=>toast('✓ 
 // ✓ Hecho (v9): vacío (outline) si está pendiente; al tocarlo se llena (amarillo), guarda kg + marca y, tras HECHO_MS, va al siguiente PENDIENTE (dando la vuelta); si no queda ninguno → Rutina completa.
 // Las flechas ← → solo guardan kg y navegan: NUNCA marcan hecho. Al volver a un ejercicio hecho el botón se ve lleno.
 const HECHO_MS=typeof window.__HECHO_MS==='number'?window.__HECHO_MS:350;let hechoT=null;
-function hecho(){if(hechoT)return;if(!saveKg())return;const r=rut(cur.r),e=exs(r)[cur.i],w=week();
+// v11 (BACKLOG, bug): Hecho es un toggle; vale el último estado. Tocar un ejercicio hecho lo desmarca (Métricas/sesión ≥50% se recalculan solas: se leen de D.hechos).
+// Tocarlo de nuevo durante la pausa de HECHO_MS cancela el avance y desmarca.
+const hechoBtn=on=>{const b=app().querySelector('[data-act=hecho]');if(b){b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))}};
+function hecho(){const r=rut(cur.r),e=exs(r)[cur.i],w=week();
+ if(hechoT){clearTimeout(hechoT);hechoT=null;setDone(e.id,w,false);if(!save())return;hechoBtn(false);return}
+ if(!saveKg())return;
  if(!inBlock(w)){if(cur.i>=exs(r).length-1){cur.draft=undefined;return resumen(r.id)}return nav(1)}
  const go=()=>{hechoT=null;const j=nextPending(r,cur.i,w);if(j<0)return completa(r.id);cur.draft=undefined;cur.i=j;ex()};
- if(isDone(e.id,w))return go();
- setDone(e.id,w,true);if(!save())return;
- const b=app().querySelector('[data-act=hecho]');if(b){b.classList.add('on');b.setAttribute('aria-pressed','true')}
+ if(isDone(e.id,w)){setDone(e.id,w,false);if(!save())return;hechoBtn(false);navigator.vibrate&&navigator.vibrate(30);toast('Marcado como pendiente',false,{dur:1500});return}
+ setDone(e.id,w,true);if(!save())return;hechoBtn(true);
  navigator.vibrate&&navigator.vibrate(30);hechoT=setTimeout(()=>{if(view===ex)go();else hechoT=null},HECHO_MS)}
-function unhecho(){const r=rut(cur.r),w=week();if(!inBlock(w))return;keepDraft();setDone(exs(r)[cur.i].id,w,false);if(!save())return;ex();toast('Marcado como pendiente',false,{dur:1500})}
-function nav(d){const r=rut(cur.r);cur.draft=undefined;cur.i+=d;if(cur.i<0)cur.i=0;if(cur.i>=exs(r).length){view=home;ROUTINE=false;return h(`${topBar()}<div class=grow><h1 class=wk>Terminaste 💪</h1><p class="c today">¡Muy bien, Pablo!</p></div><button class="big acc" data-act=home>Inicio</button>`)}ex()}
+function nav(d){const r=rut(cur.r);cur.draft=undefined;cur.i+=d;if(cur.i<0)cur.i=0;if(cur.i>=exs(r).length){view=home;ROUTINE=false;return h(`${topBar()}<div class=grow><h1 class=wk>Terminaste ${ic('trofeo','em')}</h1><p class="c today">¡Muy bien, Pablo!</p></div><button class="big acc bi" data-act=home>${ic('inicio')}Inicio</button>`)}ex()}
 // ---------- peso (continuo, independiente del plan) ----------
-const PPG=6,pesoOrd=()=>D.peso.map((x,j)=>({...x,j})).sort((a,b)=>a.f<b.f?-1:a.f>b.f?1:a.j-b.j);
+const PPG=5,pesoOrd=()=>D.peso.map((x,j)=>({...x,j})).sort((a,b)=>a.f<b.f?-1:a.f>b.f?1:a.j-b.j);
 const dm=f=>dmShort(new Date(f)),dmy=f=>{const d=new Date(f);return dm(f)+'/'+String(d.getFullYear()).slice(2)};
 const sgn=x=>(x>0?'+':x<0?'−':'±')+fmt(Math.round(Math.abs(x)*100)/100);
 function peso(pg=0){view=()=>peso(pg);const O=pesoOrd(),L=O.map((x,j)=>({...x,p:j?O[j-1].kg:null})).reverse(),n=Math.max(1,Math.ceil(L.length/PPG));pg=Math.min(Math.max(0,pg),n-1);const u=O.at(-1);
- h(`${topBar('Peso')}<h1>⚖️ Peso</h1>
- <div class=row style="align-items:center"><label for=meta>🎯 Meta</label> <input id=meta class=meta inputmode=decimal value="${esc(fmt(D.meta))}" placeholder="—"> kg <button class=mid data-act=setMeta>OK</button></div>
+ // v11: el registro de peso se mudó de Inicio a esta pantalla (mismo input #pk y misma acción addP)
+ h(`${topBar('Peso')}<h1 class=ttl>${ic('peso')}Peso</h1>
+ <div class="row prow"><label for=pk>Nuevo<small>kg</small></label><input id=pk class=meta inputmode=decimal value="${u?fmt(u.kg):''}" placeholder="kg"><button class="mid bi" data-act=addP>${ic('check')}Guardar</button></div>
+ <div class="row prow"><label for=meta>Meta<small>kg</small></label><input id=meta class=meta inputmode=decimal value="${esc(fmt(D.meta))}" placeholder="—"><button class="mid bi" data-act=setMeta>${ic('check')}Guardar</button></div>
  ${u&&O.length>1?`<p class=info>Desde el primero: <b>${sgn(u.kg-O[0].kg)} kg</b>${D.meta?` · Faltan <b>${fmt(Math.round(Math.abs(u.kg-D.meta)*100)/100)} kg</b>`:''}</p>`:''}
- <ul class="cl grow">${L.slice(pg*PPG,pg*PPG+PPG).map(x=>`<li><span class=muted>${dmy(x.f)}${x.w?' · S'+x.w:''}</span> <b>${fmt(x.kg)} kg</b><br><span class=muted>${x.p!=null?`vs anterior ${sgn(x.kg-x.p)}`:'primer registro'}${D.meta?` · vs meta ${sgn(x.kg-D.meta)}`:''}</span></li>`).join('')||'<li>Sin registros. Cargalo en Inicio.</li>'}</ul>
- ${n>1?`<div class=row><button class=mid data-act=peso data-a="${pg-1}" ${pg?'':'disabled'} aria-label="Más nuevos">◀</button><span class="mid pgl">${pg+1}/${n}</span><button class=mid data-act=peso data-a="${pg+1}" ${pg<n-1?'':'disabled'} aria-label="Más viejos">▶</button></div>`:''}`)}
+ <ul class="cl grow">${L.slice(pg*PPG,pg*PPG+PPG).map(x=>`<li><span class=muted>${dmy(x.f)}${x.w?' · S'+x.w:''}</span> <b>${fmt(x.kg)} kg</b><br><span class=muted>${x.p!=null?`vs anterior ${sgn(x.kg-x.p)}`:'primer registro'}${D.meta?` · vs meta ${sgn(x.kg-D.meta)}`:''}</span></li>`).join('')||'<li>Sin registros. Cargá tu peso arriba.</li>'}</ul>
+ ${n>1?`<div class=row><button class=mid data-act=peso data-a="${pg-1}" ${pg?'':'disabled'} aria-label="Más nuevos">${ic('izq')}</button><span class="mid pgl">${pg+1}/${n}</span><button class=mid data-act=peso data-a="${pg+1}" ${pg<n-1?'':'disabled'} aria-label="Más viejos">${ic('der')}</button></div>`:''}`)}
 const dayKey=f=>new Date(f).toDateString();
 function addP(){const el=$('pk'),v=num(el.value);if(!okKg(v)){el.classList.add('bad');return toast('Número no válido. Ej: 82,5',true)}const f=new Date().toISOString(),u=pesoOrd().at(-1);
  if(u&&u.kg===v&&dayKey(u.f)===dayKey(f))return toast(`✓ Ya estaba guardado: ${fmt(v)} kg`);
- D.peso.push({kg:v,f,w:wTag(f)});if(save()){toast(`✓ Peso guardado: ${fmt(v)} kg`);home()}}
+ D.peso.push({kg:v,f,w:wTag(f)});if(save()){toast(`✓ Peso guardado: ${fmt(v)} kg`);peso()}}
 function setMeta(){const s=$('meta').value.trim(),v=num(s);if(s&&!okKg(v)){$('meta').classList.add('bad');return toast('Número no válido. Ej: 82,5',true)}D.meta=s?v:'';if(save()){toast('✓ Guardado');peso()}}
 // ---------- historial por bloque ----------
 function bloques(){const s=new Set([BLK()]);for(const k of['log','hechos'])for(const b of Object.keys(D[k]))if(Object.values(D[k][b]).some(ws=>Object.keys(ws).length))s.add(b);for(const x of histKg())s.add(x.blockId);return[...s]}
@@ -267,14 +301,14 @@ const bName=b=>b===BLK()?`Bloque ${PL.bloque.numero} · ${PL.bloque.nombre} (act
 const tabsDe=b=>b===BLK()?RUTS().map(r=>r.id):[...new Set(histKg().filter(x=>x.blockId===b).map(x=>x.r))].sort();
 function tabs(rid,b){return`<div class=row>${tabsDe(b).map(x=>`<button class="mid ${x===rid?'acc':''}" data-act=hist data-a="${esc(x)}">${esc(x)}</button>`).join('')}<button class="mid ${rid==='cam'?'acc':''}" data-act=cambios>Cambios</button></div>`}
 let HB=null,HWP=null,HCUR='';// HWP: página de semanas del Historial (6 por página)
-function hist(rid,b){b=b||HB||BLK();if(!bloques().includes(b))b=BLK();HB=b;const tb=tabsDe(b);if(!rid||!tb.includes(rid))rid=tb[0]||'';HCUR=rid;view=()=>hist(rid,b);const bl=bloques(),cw=b===BLK()?week():0,nw=Math.max(b===BLK()?NW():6,cw,maxW(b)),PS=4,np=Math.ceil(nw/PS);if(HWP==null||HWP>=np)HWP=cw?Math.floor((Math.min(cw,nw)-1)/PS):np-1;const pg=HWP,ws=[...Array(Math.min(PS,nw-pg*PS))].map((_,k)=>pg*PS+k+1);
+function hist(rid,b){b=b||HB||BLK();if(!bloques().includes(b))b=BLK();HB=b;const tb=tabsDe(b);if(!rid||!tb.includes(rid))rid=tb[0]||'';HCUR=rid;view=()=>hist(rid,b);const bl=bloques(),cw=b===BLK()?week():0,nw=Math.max(b===BLK()?NW():6,cw,maxW(b)),PS=3,np=Math.ceil(nw/PS);if(HWP==null||HWP>=np)HWP=cw?Math.floor((Math.min(cw,nw)-1)/PS):np-1;const pg=HWP,ws=[...Array(Math.min(PS,nw-pg*PS))].map((_,k)=>pg*PS+k+1);
  h(`${topBar('Historial')}${bl.length>1?`<label class=vh for=bsel>Bloque</label><select id=bsel class=bsel>${bl.map(x=>`<option value="${esc(x)}" ${x===b?'selected':''}>${esc(bName(x))}</option>`).join('')}</select>`:''}${tabs(rid,b)}
- <div class=grow><table class=cn><tr><th>kg</th>${ws.map(w=>`<th>S${w}</th>`).join('')}</tr>${filas(rid,b).map(f=>`<tr><td class="${f.del?'del':''}"><span class=nm>${esc(f.nombre)}${f.del?' (quitado)':''}</span></td>${ws.map(w=>`<td class="${f.del?'del':''}">${fmt(logGet(b,f.id,w))||'·'}</td>`).join('')}</tr>`).join('')}</table></div>${np>1?`<div class=row><button class=mid data-act=histPg data-a="${pg-1}" ${pg?'':'disabled'} aria-label="Semanas anteriores">◀</button><span class="mid pgl">${ws.length>1?`S${ws[0]}–S${ws.at(-1)}`:`S${ws[0]}`}</span><button class=mid data-act=histPg data-a="${pg+1}" ${pg<np-1?'':'disabled'} aria-label="Semanas siguientes">▶</button></div>`:''}`)}
+ <div class=grow><table class=cn><tr><th>kg</th>${ws.map(w=>`<th>S${w}</th>`).join('')}</tr>${filas(rid,b).map(f=>`<tr><td class="${f.del?'del':''}"><span class=nm>${esc(f.nombre)}${f.del?' (quitado)':''}</span></td>${ws.map(w=>`<td class="${f.del?'del':''}">${fmt(logGet(b,f.id,w))||'·'}</td>`).join('')}</tr>`).join('')}</table></div>${np>1?`<div class=row><button class=mid data-act=histPg data-a="${pg-1}" ${pg?'':'disabled'} aria-label="Semanas anteriores">${ic('izq')}</button><span class="mid pgl">${ws.length>1?`S${ws[0]}–S${ws.at(-1)}`:`S${ws[0]}`}</span><button class=mid data-act=histPg data-a="${pg+1}" ${pg<np-1?'':'disabled'} aria-label="Semanas siguientes">${ic('der')}</button></div>`:''}`)}
 const maxW=b=>{let m=0;for(const k of['log','hechos'])for(const ws of Object.values(D[k][b]||{}))for(const w of Object.keys(ws))m=Math.max(m,+w);return m};
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='bsel'){HB=e.target.value;HWP=null;hist('',HB)}});
-const PG=9;function cambios(pg){pg=+pg||0;view=()=>cambios(pg);const H=histKg(),L=H.map((x,j)=>{let p;for(let k=j-1;k>=0;k--)if(H[k].exId===x.exId&&H[k].kg!=null){p=H[k].kg;break}return{...x,p}}).reverse(),n=Math.max(1,Math.ceil(L.length/PG));pg=Math.min(Math.max(0,pg),n-1);
+const PG=6;/* v11: 6 por página (con letra 22/26 entran 6 aunque todos ocupen 3 líneas) */function cambios(pg){pg=+pg||0;view=()=>cambios(pg);const H=histKg(),L=H.map((x,j)=>{let p;for(let k=j-1;k>=0;k--)if(H[k].exId===x.exId&&H[k].kg!=null){p=H[k].kg;break}return{...x,p}}).reverse(),n=Math.max(1,Math.ceil(L.length/PG));pg=Math.min(Math.max(0,pg),n-1);
  h(`${topBar('Cambios de kg')}${tabs('cam',HB||BLK())}<ul class="cl grow">${L.slice(pg*PG,pg*PG+PG).map(x=>`<li><span class=muted>${dm(x.f)}${x.mig?'*':''} · S${x.w||'–'} · ${esc(x.r)}</span> ${esc(short(x.e))}<br><b>${x.kg==null?'borrado':fmt(x.kg)+' kg'}</b>${x.kg!=null&&x.p!=null?` <span class=muted>(${sgn(x.kg-x.p)})</span>`:''}</li>`).join('')||'<li>Sin cambios todavía</li>'}</ul>
- <div class=row><button class=mid data-act=cambios data-a="${pg-1}" ${pg?'':'disabled'} aria-label="Más nuevos">◀</button><span class="mid pgl">${pg+1}/${n}</span><button class=mid data-act=cambios data-a="${pg+1}" ${pg<n-1?'':'disabled'} aria-label="Más viejos">▶</button></div>${H.some(x=>x.mig)?'<p class="muted sm2 c">* fecha aproximada (dato anterior a v7)</p>':''}`)}
+ <div class=row><button class=mid data-act=cambios data-a="${pg-1}" ${pg?'':'disabled'} aria-label="Más nuevos">${ic('izq')}</button><span class="mid pgl">${pg+1}/${n}</span><button class=mid data-act=cambios data-a="${pg+1}" ${pg<n-1?'':'disabled'} aria-label="Más viejos">${ic('der')}</button></div>${H.some(x=>x.mig)?'<p class="muted sm2 c">* fecha aproximada (dato anterior a v7)</p>':''}`)}
 // ---------- Métricas (v10): sesiones completas por rutina ----------
 // Sesión completa = al menos el 50 % (>=) de los ejercicios de esa rutina que aplican esa semana (omitirEn; semana 7+ usa la lista de la última) marcados Hecho en esa semana de calendario.
 // Umbral = Math.ceil(n/2): 9 ejercicios → 5, 8 → 4. Lista vacía → no cuenta.
@@ -282,9 +316,13 @@ const PG=9;function cambios(pg){pg=+pg||0;view=()=>cambios(pg);const H=histKg(),
 const freqDe=rid=>Math.max(1,Object.values(PL&&PL.agenda||{}).filter(a=>a&&a.rutina===rid).length);
 const exsW=(r,w)=>r.ejercicios.filter(e=>!(e.omitirEn||[]).includes(Math.min(Math.max(1,w),NW())));
 const sesionOk=(r,w)=>{const E=exsW(r,w);return E.length>0&&E.filter(e=>isDone(e.id,w)).length>=Math.ceil(E.length/2)};
-function kpi(r){const f=freqDe(r.id),cw=week(),hW=Math.max(cw,maxW(BLK())),tot=NW()*f;let done=0,hasta=0;for(let w=1;w<=hW;w++)if(sesionOk(r,w)){done++;if(w<=cw)hasta++}
+// v11 (BACKLOG, decisión Dev Lead): un Hecho en una semana futura (reloj cambiado, datos importados) no cuenta; solo semanas 1..actual
+function kpi(r){const f=freqDe(r.id),cw=week(),tot=NW()*f;let done=0,hasta=0;for(let w=1;w<=cw;w++)if(sesionOk(r,w)){done++;hasta++}
  const el=Math.max(1,cw)*f;return{done,tot,pct:Math.min(100,Math.round(done*100/tot)),extra:Math.max(0,done-tot),hasta,el,cpct:Math.min(100,Math.round(hasta*100/el))}}
-function metricas(){view=metricas;h(`${topBar('Métricas')}<h2>📈 Sesiones completas</h2><div class="grow mts">${RUTS().map(r=>{const k=kpi(r);return`<div class=mtc><p class=mtt>${esc(r.titulo)}</p><p class=mtn><b>${Math.min(k.done,k.tot)}/${k.tot}</b> · ${k.pct}%${k.extra?` <span class=mtx>(+${k.extra} extra)</span>`:''}</p><p class=mtd>Al día: ${k.hasta} de ${k.el} ${k.el===1?'semana':'semanas'} · ${k.cpct}%</p></div>`}).join('')}<p class="muted mtf">Cuenta la sesión con al menos la mitad de los ejercicios con ✓ Hecho esa semana.</p></div><button class=big data-act=home>← Volver</button>`)}
+function metricas(){view=metricas;h(`${topBar('Métricas')}<h2 class=ttl2>${ic('metricas')}Sesiones completas</h2><div class="grow mts">${RUTS().map(r=>{const k=kpi(r);return`<div class=mtc><p class=mtt>${esc(r.titulo)}</p><p class=mtn><b>${Math.min(k.done,k.tot)}/${k.tot}</b> · ${k.pct}%${k.extra?` <span class=mtx>(+${k.extra} extra)</span>`:''}</p><p class=mtd>Al día: ${k.hasta} de ${k.el} ${k.el===1?'semana':'semanas'} · ${k.cpct}%</p></div>`}).join('')}<p class="muted mtf">Cuenta la sesión con al menos la mitad de los ejercicios con Hecho esa semana.</p></div><button class="big bi" data-act=home>${ic('atras')}Volver</button>`);shrinkMt()}
+// v11 (QA B-11): con títulos largos y safe-area la nota final se cortaba. Pasos, solo si no entra: 1) número 56→44, 2) número 34 y % 28,
+// 3) título 20px y tarjeta más baja, 4) título en máximo 2 líneas (último recurso; con el plan real no se usa ninguno)
+function shrinkMt(){const m=app().querySelector('.mts');if(!m)return;for(const k of['k1','k2','k3','k4']){if(!over())break;m.classList.add(k)}}
 // ---------- export CSV (bloque y exId al final de las tablas de kg; peso igual) ----------
 function download(txt,name,type){const u=URL.createObjectURL(new Blob([txt],{type})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);navigator.clipboard?.writeText(txt).catch(()=>{})}
 const cq=s=>'"'+String(s).replace(/"/g,'""').replace(/^([=+\-@])/,"'$1")+'"';
@@ -292,11 +330,14 @@ function rutinaDe(b,id){if(b===BLK())for(const r of RUTS())if(r.ejercicios.some(
 function exportar(){let csv='rutina,ejercicio,semana,kg,bloque,exId\n';for(const b of Object.keys(D.log))for(const id of Object.keys(D.log[b]))for(const[w,kg]of Object.entries(D.log[b][id]))csv+=`${rutinaDe(b,id)},${cq(nombreDe(id))},${w},${kg},${cq(b)},${cq(id)}\n`;
  csv+='\nhistorico_kg\nfecha,semana,rutina,ejercicio,kg,aproximada,bloque,exId\n'+histKg().map(x=>`${x.f},${x.w},${x.r},${cq(x.e)},${x.kg??''},${x.mig?1:0},${cq(x.blockId)},${cq(x.exId)}`).join('\n');
  csv+='\n\nhistorico_peso\nfecha,semana_bloque,peso\n'+pesoOrd().map(x=>`${x.f},${x.w??''},${x.kg}`).join('\n')+`\n\nmeta_peso\n${D.meta}\n`;
+ // v11 (QA T10): estado de Hecho en sección propia, al final para no mover las anteriores (los lectores de CSV viejos siguen andando). Una fila por ejercicio y semana marcados
+ const HR=[];for(const b of Object.keys(D.hechos||{}))for(const id of Object.keys(D.hechos[b]||{}))for(const w of Object.keys(D.hechos[b][id]||{}).sort((x,y)=>x-y))if(D.hechos[b][id][w])HR.push(`${rutinaDe(b,id)},${cq(nombreDe(id))},${w},${cq(b)},${cq(id)}`);
+ csv+='\nhechos\nrutina,ejercicio,semana,bloque,exId\n'+HR.join('\n')+(HR.length?'\n':'');
  download(csv,'entrenamiento-respaldo.csv','text/csv');toast('✓ Respaldo descargado (y copiado)')}
 // ---------- S-1: acciones por delegación (sin onclick en línea) ----------
 const ACT={home:()=>{clearInterval(TI);home()},backEx:()=>{clearInterval(TI);ex()},timerI:a=>{const r=cur&&rut(cur.r),e=r&&exs(r)[+a];if(e){keepDraft();timer(descDe(eff(e)))}},storeOk:()=>{STORERR=false;afterBoot()},
  hist:a=>{if(a==null)HWP=null;hist(a)},histPg:a=>{HWP=Math.max(0,+a);hist(HCUR)},cambios:a=>cambios(a),peso:a=>peso(+a||0),resumen:a=>rut(a)&&resumen(a),start:a=>start(a),goEx:a=>goEx(a),done:a=>done(+a),
- actualizar,addP,ajustes,metricas,exportBad,exportar,hecho,unhecho,resetData,borrarTodo,borrarSi,setMeta,retryPlan};
+ actualizar,addP,ajustes,metricas,exportBad,exportar,hecho,resetData,borrarTodo,borrarSi,setMeta,retryPlan};
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-act]');if(!b||b.disabled||!own(ACT,b.dataset.act))return;e.preventDefault();ACT[b.dataset.act](b.dataset.a)});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('li[data-act]')){e.preventDefault();e.target.click()}});
 document.addEventListener('input',e=>{e.target.classList&&e.target.classList.remove('bad')});
