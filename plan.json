@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "planVersion": 1,
+  "planVersion": 2,
   "minApp": "8.0",
-  "notas_coach": "Plan del bloque 1. No cambiar los id. Subir planVersion en cada cambio.",
+  "notas_coach": "Plan del bloque 1. No cambiar los id. Subir planVersion en cada cambio. v2 (18/10): ajuste a 1h15 aprobado por Pablo: S4 drop set en accesorios (no +1 serie), descansos con tope (básicos 2′, accesorios 60″), Pallof y rotadora sin pausa entre lados, regla de corte a 1h10.",
   "notasComunes": {
     "rodilla": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, usá la alternativa.",
     "muneca": "Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá y consultá a tu médico."
@@ -21,22 +21,28 @@
   "renombres": {},
   "semanas": {
     "1": {
-      "objetivo": "RPE 6-7: encontrá las cargas"
+      "objetivo": "RPE 6-7: encontrá las cargas",
+      "nota": "A 1h10 salteá el último accesorio, nunca el final de C."
     },
     "2": {
-      "objetivo": "RPE 7-8"
+      "objetivo": "RPE 7-8",
+      "nota": "A 1h10 salteá el último accesorio, nunca el final de C."
     },
     "3": {
-      "objetivo": "RPE 8: si completaste las reps, sumá una placa"
+      "objetivo": "RPE 8: si completaste las reps, sumá una placa",
+      "nota": "A 1h10 salteá el último accesorio, nunca el final de C."
     },
     "4": {
-      "objetivo": "+1 serie en los accesorios"
+      "objetivo": "Con drop set en la última serie de accesorios",
+      "nota": "A 1h10 salteá el último accesorio, nunca el final de C."
     },
     "5": {
-      "objetivo": "Semana pico 💥 RPE 8-9 en la última serie"
+      "objetivo": "Semana pico 💥 RPE 8-9 en la última serie",
+      "nota": "A 1h10 salteá el último accesorio, nunca el final de C."
     },
     "6": {
-      "objetivo": "Descarga 🔋 mitad de las series, sin el final"
+      "objetivo": "Descarga 🔋 mitad de las series, sin el final",
+      "nota": "A 1h10 salteá el último accesorio (tope 1h15)."
     }
   },
   "agenda": {
@@ -100,7 +106,12 @@
           "rpe": "8",
           "alternativa": "Curl sentado",
           "nota": "Cadera pegada al banco, subida y bajada controladas.",
-          "video": "9xbBr5Ytl8c"
+          "video": "9xbBr5Ytl8c",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "extension-cuadriceps",
@@ -111,7 +122,12 @@
           "rpe": "8",
           "alternativa": "A una pierna",
           "nota": "Recorrido de 90° a 30°, sin bloquear la rodilla.",
-          "video": "U_OUPKqlWrQ"
+          "video": "U_OUPKqlWrQ",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "abductora",
@@ -122,7 +138,12 @@
           "rpe": "8",
           "alternativa": "Abductora con discos",
           "nota": "Espalda apoyada, abrí controlado y pausá afuera.",
-          "video": "2vCRMi-lgJ4"
+          "video": "2vCRMi-lgJ4",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "aductora",
@@ -133,7 +154,12 @@
           "rpe": "8",
           "alternativa": "Aductor en polea",
           "nota": "Cerrá controlado, sin rebote.",
-          "video": "O7co9-r7a6M"
+          "video": "O7co9-r7a6M",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "gemelos-sentado",
@@ -144,7 +170,12 @@
           "rpe": "8-9",
           "alternativa": "Gemelos en prensa",
           "nota": "Estirá abajo, pausa arriba.",
-          "video": "rfkYC-mbQus"
+          "video": "rfkYC-mbQus",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "pallof-press",
@@ -154,8 +185,13 @@
           "descanso": "45″",
           "rpe": "7",
           "alternativa": "Pallof arrodillado",
-          "nota": "Que el tronco no gire. Brazos al frente y volvé lento.",
-          "video": "bYKor-nicRg"
+          "nota": "Que el tronco no gire. Brazos al frente y volvé lento. Sin pausa entre lados.",
+          "video": "bYKor-nicRg",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "elevacion-rodillas-silla-romana",
@@ -215,12 +251,17 @@
           "idViejo": "B3",
           "nombre": "Press de hombros en máquina",
           "series": "3×10",
-          "descanso": "90″",
+          "descanso": "60″",
           "rpe": "7-8",
           "alternativa": "Smith sentado",
           "nota": "Sin arquear la espalda. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá y consultá a tu médico.",
           "video": "NjZy28n8Qto",
-          "notaComun": "muneca"
+          "notaComun": "muneca",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "pec-deck-invertido",
@@ -231,7 +272,12 @@
           "rpe": "8",
           "alternativa": "Face pull en polea",
           "nota": "Brazos casi rectos, abrí hacia atrás.",
-          "video": "TtJmmR2RuHU"
+          "video": "TtJmmR2RuHU",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "laterales-polea",
@@ -242,7 +288,12 @@
           "rpe": "8-9",
           "alternativa": "Laterales en máquina",
           "nota": "Subí hasta el hombro, sin impulso.",
-          "video": "c7-4b6AmMDY"
+          "video": "c7-4b6AmMDY",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "curl-scott-z",
@@ -253,7 +304,12 @@
           "rpe": "8",
           "alternativa": "Curl en polea",
           "nota": "Agarrá la parte angulada. Bajada lenta.",
-          "video": "JtWyDc6U1pU"
+          "video": "JtWyDc6U1pU",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "triceps-polea",
@@ -264,7 +320,12 @@
           "rpe": "8",
           "alternativa": "Tríceps con cuerda",
           "nota": "Codos pegados al cuerpo.",
-          "video": "FELcywKlkqE"
+          "video": "FELcywKlkqE",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "muneca-polea",
@@ -326,7 +387,12 @@
           "rpe": "8",
           "alternativa": "Remo en máquina",
           "nota": "Tirá con el codo, sin girar el tronco.",
-          "video": "C7rxEp-078I"
+          "video": "C7rxEp-078I",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "hiperextension-45",
@@ -337,7 +403,12 @@
           "rpe": "7-8",
           "alternativa": "Máquina lumbar",
           "nota": "Pausa arriba. Con disco al pecho cuando la domines.",
-          "video": "MpBAD9a3uD4"
+          "video": "MpBAD9a3uD4",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "patada-gluteo-maquina",
@@ -348,7 +419,12 @@
           "rpe": "8",
           "alternativa": "Patada en polea",
           "nota": "Sin arquear la zona lumbar.",
-          "video": "RT5ZuVCy5Ac"
+          "video": "RT5ZuVCy5Ac",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "rotadora-tronco",
@@ -358,8 +434,13 @@
           "descanso": "45″",
           "rpe": "7",
           "alternativa": "Woodchop en polea",
-          "nota": "Giro lento y controlado.",
-          "video": "4xMcrAd7VKY"
+          "nota": "Giro lento y controlado. Sin pausa entre lados.",
+          "video": "4xMcrAd7VKY",
+          "porSemana": {
+            "4": {
+              "carga": "Con drop set final"
+            }
+          }
         },
         {
           "id": "final-bike-eliptico",
