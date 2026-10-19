@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "planVersion": 2,
+  "planVersion": 3,
   "minApp": "8.0",
   "notas_coach": "Plan del bloque 1. No cambiar los id. Subir planVersion en cada cambio. v2 (18/10): ajuste a 1h15 aprobado por Pablo: S4 drop set en accesorios (no +1 serie), descansos con tope (básicos 2′, accesorios 60″), Pallof y rotadora sin pausa entre lados, regla de corte a 1h10.",
   "notasComunes": {
@@ -122,7 +122,7 @@
           "rpe": "8",
           "alternativa": "A una pierna",
           "nota": "Recorrido de 90° a 30°, sin bloquear la rodilla.",
-          "video": "U_OUPKqlWrQ",
+          "video": "KsebeW8gCxU",
           "porSemana": {
             "4": {
               "carga": "Con drop set final"
@@ -186,7 +186,7 @@
           "rpe": "7",
           "alternativa": "Pallof arrodillado",
           "nota": "Que el tronco no gire. Brazos al frente y volvé lento. Sin pausa entre lados.",
-          "video": "bYKor-nicRg",
+          "video": "W8Yf1uyUnoM",
           "porSemana": {
             "4": {
               "carga": "Con drop set final"
@@ -202,7 +202,7 @@
           "rpe": "8",
           "alternativa": "Crunch en polea",
           "nota": "Sin balanceo, subí las rodillas al pecho.",
-          "video": "ioiS2KCeHKU"
+          "video": "DLy3kDFJxes"
         }
       ],
       "notas_coach": "nota va siempre literal y completa; notaComun es solo una etiqueta para check-plan.mjs (la app la ignora)."
@@ -288,7 +288,7 @@
           "rpe": "8-9",
           "alternativa": "Laterales en máquina",
           "nota": "Subí hasta el hombro, sin impulso.",
-          "video": "c7-4b6AmMDY",
+          "video": "OXLuvI4GF7E",
           "porSemana": {
             "4": {
               "carga": "Con drop set final"
@@ -354,7 +354,7 @@
           "rpe": "Moderada",
           "alternativa": "Hack explosivo",
           "nota": "Bajá lento, empujá rápido. Carga moderada.",
-          "video": "iD2RMHckobU"
+          "video": "KdT2g0iSdG0"
         },
         {
           "id": "hip-thrust-maquina",
