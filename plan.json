@@ -1,11 +1,11 @@
 {
  "schema": 1,
- "planVersion": 5,
+ "planVersion": 6,
  "minApp": "8.0",
- "notas_coach": "Plan del bloque 1. No cambiar los id. Subir planVersion en cada cambio. v2 (18/10): ajuste a 1h15. v3: 5 videos corregidos. v4 (19/10, autorizado por Pablo): 7 ejercicios por rutina (retirados: extensión de cuádriceps, aductora, pec deck invertido, tríceps en polea, patada de glúteo), sin superseries, RPE por semana, S6 con la mitad de las series (4 y 3 a 2) y sin el final de C, drop set explicado (-25%) y sin drop set en core, tope RPE 8 en S5 para hack y prensa 45, muñeca 2×15 alternando, solo hack squat, en B laterales al final para la regla de corte. v5 (19/10): sin referencias a tiempo de sesión en la app (nota de semanas 1-5 y nota de laterales).",
+ "notas_coach": "Plan del bloque 1. No cambiar los id. Subir planVersion en cada cambio. v4 (19/10): 7 ejercicios por rutina, RPE por semana, descarga en S6. v5: sin textos de duración. v5.1: limpieza de notas.",
  "notasComunes": {
   "rodilla": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, acortá el rango o bajá la carga.",
-  "muneca": "Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá y consultá a tu médico."
+  "muneca": "Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá."
  },
  "bloque": {
   "id": "bloque-01",
@@ -285,7 +285,7 @@
      "descanso": "2′",
      "rpe": "8",
      "alternativa": "Jalón en polea",
-     "nota": "Pecho arriba, bajá hacia el pecho. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá y consultá a tu médico.",
+     "nota": "Pecho arriba, bajá hacia el pecho. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá.",
      "video": "ZBxTTC9SSbA",
      "notaComun": "muneca",
      "porSemana": {
@@ -313,7 +313,7 @@
      "descanso": "2′",
      "rpe": "7-8",
      "alternativa": "Inclinado en Smith",
-     "nota": "Escápulas juntas, bajada controlada. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá y consultá a tu médico.",
+     "nota": "Escápulas juntas, bajada controlada. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá.",
      "video": "YM90BrbZIBM",
      "notaComun": "muneca",
      "porSemana": {
@@ -368,7 +368,7 @@
      "descanso": "60″",
      "rpe": "7-8",
      "alternativa": "Smith sentado",
-     "nota": "Sin arquear la espalda. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá y consultá a tu médico.",
+     "nota": "Sin arquear la espalda. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá.",
      "video": "NjZy28n8Qto",
      "notaComun": "muneca",
      "porSemana": {
@@ -399,7 +399,7 @@
      "descanso": "60″",
      "rpe": "8",
      "alternativa": "Curl en polea",
-     "nota": "Agarrá la parte angulada. Bajada lenta. Si molesta la muñeca, usá la alternativa.",
+     "nota": "Agarrá la parte angulada. Bajada lenta. Si molesta la muñeca, bajá la carga.",
      "video": "JtWyDc6U1pU",
      "porSemana": {
       "1": {
@@ -640,7 +640,7 @@
      "descanso": "—",
      "rpe": "8",
      "alternativa": "Bici fija",
-     "nota": "30″ fuerte y 30″ suave, sin parar. Sin impacto. Va siempre, aunque recortes.",
+     "nota": "30″ fuerte y 30″ suave, sin parar. Sin impacto.",
      "video": "Jtg4Rxag4BU",
      "registraKg": false,
      "porSemana": {
