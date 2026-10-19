@@ -1,5 +1,5 @@
 // entreno-app v8 — el plan vive en plan.json (lo edita Coach); acá queda solo la app. Diseño: plan-vs-app.md (FINAL).
-const APP_VERSION='11';// subir en cada versión de la app; plan.json puede pedir un mínimo con "minApp"
+const APP_VERSION='12';// subir en cada versión de la app; plan.json puede pedir un mínimo con "minApp"
 // Nombre visible de la app: cambiarlo SOLO acá (y en manifest.json name/short_name; ver README).
 const APP_NAME='Entreno';document.title=APP_NAME;
 const DC=['dom','lun','mar','mié','jue','vie','sáb'],DN=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],DK=['dom','lun','mar','mie','jue','vie','sab'];
@@ -7,7 +7,8 @@ const DC=['dom','lun','mar','mié','jue','vie','sáb'],DN=['Domingo','Lunes','Ma
 const B1='bloque-01',B1_START=new Date(2026,9,19),MAPB1={"A0":["hack-squat","Hack squat o péndulo"],"A1":["prensa-45","Prensa 45°"],"A2":["curl-femoral-acostado","Curl femoral acostado"],"A3":["extension-cuadriceps","Extensión de cuádriceps 90°→30°"],"A4":["abductora","Abductora"],"A5":["aductora","Aductora"],"A6":["gemelos-sentado","Gemelos sentado con discos"],"A7":["pallof-press","Pallof press en polea"],"A8":["elevacion-rodillas-silla-romana","Elevación de rodillas en silla romana"],"B0":["jalon-discos","Jalón con discos"],"B1":["press-inclinado-hammer","Press inclinado con discos (Hammer)"],"B2":["remo-t-pecho-apoyado","Remo T con pecho apoyado"],"B3":["press-hombros-maquina","Press de hombros en máquina"],"B4":["pec-deck-invertido","Pec deck invertido"],"B5":["laterales-polea","Laterales en polea"],"B6":["curl-scott-z","Curl Scott con barra Z"],"B7":["triceps-polea","Tríceps en polea"],"B8":["muneca-polea","Muñeca en polea, liviano (flexión y extensión)"],"C0":["prensa-explosiva","Prensa explosiva"],"C1":["hip-thrust-maquina","Hip thrust en máquina"],"C2":["rumano-smith","Rumano en Smith"],"C3":["remo-polea-baja-un-brazo","Remo en polea baja a un brazo"],"C4":["hiperextension-45","Hiperextensión 45°"],"C5":["patada-gluteo-maquina","Patada de glúteo en máquina"],"C6":["rotadora-tronco","Rotadora de tronco"],"C7":["final-bike-eliptico","Final: assault bike o elíptico"]};
 const N=()=>Object.create(null);// mapas sin prototipo (evita __proto__)
 const own=(o,k)=>o!=null&&Object.prototype.hasOwnProperty.call(o,k);
-const okKg=n=>n>0&&n<=500;
+const okKg=n=>n>0&&n<=500;// peso corporal y meta
+const okKgEj=n=>n>=0&&n<=500;// v12 (Coach L3): kg de ejercicio admite 0 = sin peso (vacío sigue siendo "sin dato" y borrar = kg:null en hist)
 const num=v=>{const s=String(v??'').trim();return/^\d{1,3}([.,]\d{1,2})?$/.test(s)?parseFloat(s.replace(',','.')):NaN};
 const sig=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return(h>>>0).toString(16)};
 // ---------- plan en uso ----------
@@ -45,8 +46,8 @@ function toV3(d2,migratedAt){const d=DEF3(),map=legacyMapper();d.migratedAt=migr
  d.peso=d2.peso;d.meta=d2.meta;return d}
 const isV2shape=o=>(Array.isArray(o.hist)&&o.hist.some(x=>x&&own(x,'ex')))||(o.log&&typeof o.log==='object'&&Object.values(o.log).some(v=>v&&typeof v==='object'&&Object.values(v).some(x=>typeof x!=='object')));
 function load3(o){const d=DEF3();d.migratedAt=typeof o.migratedAt==='string'?o.migratedAt:null;d.v2sig=typeof o.v2sig==='string'?o.v2sig:'';d.v2hechos=Array.isArray(o.v2hechos)?o.v2hechos.filter(x=>typeof x==='string'):[];d.v2meta=o.v2meta??'';
- for(const k of['log','hechos'])if(o[k]&&typeof o[k]==='object')for(const[b,exs]of Object.entries(o[k]))if(exs&&typeof exs==='object'){d[k][b]=N();for(const[id,ws]of Object.entries(exs))if(ws&&typeof ws==='object'){const e=N();for(const[w,v]of Object.entries(ws))if(+w>=1&&+w<=520&&(k==='hechos'?v:okKg(+v)))e[w]=k==='hechos'?1:+v;d[k][b][id]=e}}
- if(Array.isArray(o.hist))d.hist=o.hist.filter(x=>x&&(x.tipo==='alias'?typeof x.de==='string'&&typeof x.a==='string':typeof x.exId==='string'&&typeof x.blockId==='string'&&(x.kg===null||okKg(+x.kg))&&!isNaN(Date.parse(x.f)))).map(x=>x.tipo==='alias'?{tipo:'alias',blockId:String(x.blockId||''),de:x.de,a:x.a,f:String(x.f||'')}:{blockId:x.blockId,exId:x.exId,e:String(x.e||x.exId),r:String(x.r||''),kg:x.kg===null?null:+x.kg,f:x.f,w:+x.w||0,...(x.mig?{mig:1}:{})});
+ for(const k of['log','hechos'])if(o[k]&&typeof o[k]==='object')for(const[b,exs]of Object.entries(o[k]))if(exs&&typeof exs==='object'){d[k][b]=N();for(const[id,ws]of Object.entries(exs))if(ws&&typeof ws==='object'){const e=N();for(const[w,v]of Object.entries(ws))if(+w>=1&&+w<=520&&(k==='hechos'?v:v!==null&&v!==''&&okKgEj(+v)))e[w]=k==='hechos'?1:+v;d[k][b][id]=e}}
+ if(Array.isArray(o.hist))d.hist=o.hist.filter(x=>x&&(x.tipo==='alias'?typeof x.de==='string'&&typeof x.a==='string':typeof x.exId==='string'&&typeof x.blockId==='string'&&(x.kg===null||x.kg!==''&&okKgEj(+x.kg))&&!isNaN(Date.parse(x.f)))).map(x=>x.tipo==='alias'?{tipo:'alias',blockId:String(x.blockId||''),de:x.de,a:x.a,f:String(x.f||'')}:{blockId:x.blockId,exId:x.exId,e:String(x.e||x.exId),r:String(x.r||''),kg:x.kg===null?null:+x.kg,f:x.f,w:+x.w||0,...(x.mig?{mig:1}:{})});
  if(o.rutas&&typeof o.rutas==='object')for(const[k,v]of Object.entries(o.rutas))if(typeof v==='string')d.rutas[k]=v;
  if(o.nombres&&typeof o.nombres==='object')for(const[k,v]of Object.entries(o.nombres))if(typeof v==='string')d.nombres[k]=v;
  if(Array.isArray(o.peso))d.peso=o.peso.filter(x=>x&&okKg(+x.kg)&&!isNaN(Date.parse(x.f))).map(x=>({kg:+x.kg,f:x.f,w:Number.isInteger(x.w)&&x.w>=1?x.w:null}));
@@ -85,7 +86,10 @@ function lastKg(id){const ids=aliases(id),b=BLK();let cb=null,ob=null;for(const 
  return cb?{kg:cb.kg,prev:false}:ob?{kg:ob.kg,prev:true}:null}
 function lastInBlock(id){const ids=aliases(id),b=BLK();let r;for(const x of histKg())if(x.blockId===b&&ids.includes(x.exId)&&(!r||x.f>=r.f))r=x;return r}
 const nombreDe=id=>{for(const r of RUTS())for(const e of r.ejercicios)if(e.id===id)return e.nombre;return D.nombres[id]||id};
-const short=n=>String(n).replace(/\s*\(.*?\)/g,'').replace(/,.*$/,'').replace('Final: ','');
+// v12 (Coach L7): se quita el prefijo 'Final:' ANTES y se pone en mayúscula la primera letra ('Final: assault bike…' → 'Assault bike o elíptico')
+const short=n=>{const s=String(n).replace(/^\s*final\s*:\s*/i,'').replace(/\s*\(.*?\)/g,'').replace(/,.*$/,'').trim();return s.charAt(0).toLocaleUpperCase('es')+s.slice(1)};
+// v12 (Coach L7): series cortas para el Resumen sin texto fijo: cualquier par de tiempos «(N″ algo / M″ algo)» → «(N″/M″)»
+const seriesCortas=s=>String(s).replace(/ por lado/g,' c/lado').replace(/ por pierna/g,' c/pierna').replace(/\(\s*(\d+(?:[.,]\d+)?\s*[″"′']+)[^()/]*\/\s*(\d+(?:[.,]\d+)?\s*[″"′']+)[^()]*\)/g,'($1/$2)');
 const corto=e=>e.nombreCorto||short(e.nombre);
 // ---------- UI base ----------
 const $=id=>document.getElementById(id),app=()=>$('app');
@@ -124,10 +128,22 @@ document.addEventListener('click',e=>{if((Date.now()<navUntil||hechoT&&!(e.targe
 function h(html){app().innerHTML=html;window.scrollTo(0,0);navUntil=Date.now()+NAVMS;fit();queueMicrotask(fitAll)}
 // UX v10: agranda la fuente hasta llenar el espacio sin desbordar (búsqueda binaria, entero de px). Corre después de shrinkEx (microtask al final de h()).
 function fitFont(el,min,max,ok){if(!el)return;el.style.fontSize=max+'px';if(ok())return;let lo=min,hi=max;el.style.fontSize=lo+'px';if(!ok())return;while(hi-lo>1){const m=Math.floor((lo+hi)/2);el.style.fontSize=m+'px';if(ok())lo=m;else hi=m}el.style.fontSize=lo+'px'}
+// demo v12 (Pablo 19/10): 'Última' queda fija a 44px como en v11; solo el input de kg se ajusta (56px, baja hasta 36) para que el número no se corte.
+// El tamaño se calcula con el peor valor tipeable, así no cambia mientras se tipea. v12.2: '888,88' (la demo usaba '888,8', pero num() acepta 2 decimales
+// y '199,75' se cortaba a 56px: 178px de texto en 147px de interior).
+const fitKg=()=>{const k=$('kg');if(!k)return;const v=k.value;k.value='888,88';let px=56;
+ for(;px>36;px--){k.style.fontSize=px+'px';if(k.scrollWidth<=k.clientWidth)break}k.style.fontSize=px+'px';k.value=v};
 function fitAll(){const a=app();if(!a)return;
  const tb=a.querySelector('.grow>table');if(tb){const no=()=>over()||tb.scrollWidth>tb.parentElement.clientWidth+1;// QA M-1/M-2: Historial siempre entero. 1) sin letra grande (.cn) si no entra; 2) último recurso: nombres en 2 líneas y corte en cualquier letra (.c2)
   if(tb.classList.contains('cn')&&no())tb.classList.add('cs');if(tb.classList.contains('cn')&&no())tb.classList.remove('cn','cs');if(no())tb.classList.add('c2')}
- const n=a.querySelector('.exg>.note');if(n){const t=a.querySelector('h2'),ts=t?Math.round(parseFloat(getComputedStyle(t).fontSize)):28;fitFont(n,Math.min(22,ts),ts,()=>!over())}// v10: cue del mismo tamaño que el título (h2); solo achica si no entra
+ const sr=a.querySelector('.exg>.sr'),inf=a.querySelector('.exg>.info'),cg=a.querySelector('.exg>.carga');for(const x of[sr,inf,cg])if(x)x.style.fontSize='';// demo v12: base fija antes de repartir (fitAll corre más de una vez)
+ fitKg();// demo v12: primero el input de kg (ancho); después el cue reparte el alto
+ const n=a.querySelector('.exg>.note');// v12: en el ejercicio, ajuste estricto (sin el 1px de tolerancia de over()) para que el cue no quede cortado 1px en el peor caso
+ const eg=a.querySelector('.exg'),ok2=()=>!over()&&(!eg||[...eg.children].every(c=>c.getBoundingClientRect().bottom<=eg.getBoundingClientRect().bottom+.5));
+ if(n){const t=a.querySelector('h2'),ts=t?Math.round(parseFloat(getComputedStyle(t).fontSize)):28;fitFont(n,Math.min(22,ts),ts,ok2)}// v10: cue del mismo tamaño que el título (h2); solo achica si no entra
+ // demo v12: el alto que sobra con el cue topeado en 28px agranda las series (52→72px, solo si siguen en 1 línea); el kg se achica (56→36) si el número no entra en el recuadro
+ if(sr&&n&&!sr.classList.contains('c')&&!sr.classList.contains('l')){const one=()=>sr.getBoundingClientRect().height<=parseFloat(getComputedStyle(sr).fontSize)*1.2+2;if(one())fitFont(sr,52,72,()=>ok2()&&one())}
+ if(n&&inf&&!inf.classList.contains('alt1'))fitFont(inf,22,28,ok2);if(n&&cg&&!cg.classList.contains('inbox'))fitFont(cg,22,28,ok2);// demo v12: después, info y carga hasta 28px
  const cl=a.querySelector('ul.cl.grow');if(cl)fitFont(cl,22,30,()=>!over()&&cl.scrollHeight<=cl.clientHeight+1);// v11: Peso y Cambios agrandan la letra si sobra alto
  const s=a.querySelector('ol.sum,ul.sum,.sum');if(s)fitFont(s,21,26,()=>!over()&&s.scrollHeight<=s.clientHeight+1);
  const t=a.querySelector('#tt');if(t&&!t.classList.contains('tdone'))fitFont(t,120,200,()=>t.scrollWidth<=t.parentElement.clientWidth&&!over())}
@@ -202,7 +218,8 @@ function ajustes(){view=ajustes;h(`${topBar()}<h1 class=ttl>${ic('ajustes')}Ajus
  <p class="muted sm2" style="margin-top:12px">App ${APP_VERSION}${PL?` · Plan v${PL.planVersion} · Bloque ${PL.bloque.numero}`:''}</p>${PLERR?`<p class="err sm2">${ic('alerta')} Plan: ${esc(PLERR.msg)}</p>`:''}${PLWARN.length?`<p class="muted sm2">Avisos del plan: ${PLWARN.length} (${esc(PLWARN[0])})</p>`:''}</div>`)}
 const wtxt=w=>`Semana ${w} de ${NW()}${w<=NW()&&isDesc(w)?' · Descarga':''}`;
 function wlabel(){return wtxt(week())}
-const topBar=(t)=>`<div class=top><button class="back bi" data-act=home>${ic('inicio')}Inicio</button><span class=wl>${wlabel()}</span></div>${t?`<h1 class=vh>${esc(t)}</h1>`:''}`;
+// demo v12 (Pablo 19/10): Inicio arriba a la izquierda solo con el ícono de la casita (56×56, aria-label)
+const topBar=(t)=>`<div class=top><button class="back bi home1" data-act=home aria-label=Inicio>${ic('inicio')}</button><span class=wl>${wlabel()}</span></div>${t?`<h1 class=vh>${esc(t)}</h1>`:''}`;
 // ---------- home ----------
 function home(){ROUTINE=false;if(PLNEXT){applyPlan(PLNEXT);PLNEXT=null}if(!PL)return noPlan();view=home;
  const w=week(),dw=new Date().getDay(),ag=PL.agenda[DK[dw]]||{},B=banners();
@@ -218,7 +235,7 @@ function home(){ROUTINE=false;if(PLNEXT){applyPlan(PLNEXT);PLNEXT=null}if(!PL)re
 const firstPending=r=>{const w=week();return inBlock(w)?exs(r).findIndex(e=>!isDone(e.id,w)):0};
 function resumen(rid){const r=rut(rid);if(!r)return home();if(!cur||cur.r!==rid)cur={r:rid,i:0};ROUTINE=true;view=()=>resumen(rid);const w=week(),inB=inBlock(w),B=banners(),fp=firstPending(r);
  h(`${topBar()}${B.html.replace(/class="banner/g,'class="opt banner').replace(/class=banner/g,'class="opt banner"')}<h2>${esc(r.titulo)}${inB?` <span class=cnt>${exs(r).filter(e=>isDone(e.id,w)).length}/${exs(r).length} ${ic('check')}</span>`:''}</h2><ol class="sum grow">${exs(r).map((e,i)=>{const L=lastKg(e.id),ok=inB&&isDone(e.id,w);
-  return`<li data-act=goEx data-a="${i}" role=button tabindex=0>${ok?`<span class=ok role=img aria-label=Hecho>${ic('check')}</span>`:`<span class=no>${i+1}</span>`}<span class=tx><span class=nm2>${e.grupo&&grupoDe(exs(r),i)?ic('superserie'):''}${esc(corto(e))}</span> <b>${esc(eff(e).series).replace(' por lado',' c/lado').replace(' por pierna',' c/pierna').replace('(30″ fuerte / 30″ suave)','(30″/30″)')}${L?` · ${fmt(L.kg)} kg`:''}</b></span></li>`}).join('')}</ol>
+  return`<li data-act=goEx data-a="${i}" role=button tabindex=0>${ok?`<span class=ok role=img aria-label=Hecho>${ic('check')}</span>`:`<span class=no>${i+1}</span>`}<span class=tx><span class=nm2>${e.grupo&&grupoDe(exs(r),i)?ic('superserie'):''}${esc(corto(e))}</span> <b>${esc(seriesCortas(eff(e).series))}${L?` · ${fmt(L.kg)} kg`:''}</b></span></li>`}).join('')}</ol>
  <button class="big acc bi" data-act=start data-a="${esc(rid)}">${fp<0?'Repasar':'Empezar'}${ic('der')}</button>`)}
 function start(rid){const r=rut(rid);if(!r)return;const fp=firstPending(r);cur={r:rid,i:fp<0?0:fp};ex()}
 function goEx(i){const r=rut(cur&&cur.r||'');if(!r)return;cur={r:r.id,i:Math.min(Math.max(0,+i||0),exs(r).length-1)};ex()}
@@ -238,24 +255,29 @@ function ex(){const r=rut(cur.r);if(!r)return home();ROUTINE=true;view=ex;const 
  const st=G?`<div class=st><p class=ss ${ssLab}>${ic('superserie')}<span>Superserie con ${ssTxt}</span></p></div>`:`<p class="muted sm2 hd">${esc(r.titulo)}</p>`;
  const sinKg=e0.registraKg===false;
  h(`${topBar('Entrenamiento')}${st}<h2><span class=vh>Ejercicio ${i+1} de ${E.length}: </span><span class=exn aria-hidden=true>${i+1}/${E.length}</span> ${esc(e.nombre)}</h2>
- <div class="grow exg"><i class=sp0></i><div class="sr${[...e.series].length>14?' l':''}">${esc(e.series)}</div>${sinKg&&e.formato?`<p class=fmt>${ic('formato')} ${esc(e.formato)}</p>`:''}<i class=sp></i><p class=info>${sinD?'':`${ic('descanso')} ${esc(d)} · `}RPE ${esc(e.rpe)}${e.tempo?` · Tempo ${esc(e.tempo)}`:''}<span class=alt>${ic('alternativa')} ${esc(e.alternativa)}</span></p>${e.carga?`<p class=carga>${ic('carga')} ${esc(e.carga)}</p>`:''}<i class=sp></i><p class=note>${esc(e.nota)}</p><i class=sp0></i></div>
+ <div class="grow exg"><i class=sp0></i><div class="sr${[...e.series].length>14?' l':''}">${esc(e.series)}</div>${sinKg&&e.formato?`<p class=fmt>${ic('formato')} ${esc(e.formato)}</p>`:''}<i class=sp></i><p class=info>${sinD||d==='—'?'':`${ic('descanso')} ${esc(d)} · `}RPE ${esc(e.rpe)}${e.tempo?` · Tempo ${esc(e.tempo)}`:''}<span class=alt>${ic('alternativa')} ${esc(e.alternativa)}</span></p>${e.carga?`<p class=carga>${ic('carga')} ${esc(e.carga)}</p>`:''}<i class=sp></i><p class=note>${esc(e.nota)}</p><i class=sp0></i></div>
  ${sinKg?'':`<div class=kgrow><div class=lastbox>Última<br><b>${L?fmt(L.kg):'—'}</b>${L&&L.prev?'<small class=prevb>bloque ant.</small>':''}</div><label for=kg class=vh>Kilos</label><input id=kg class=kg type=text inputmode=decimal value="${esc(val)}" placeholder="kg"><span class=kgl>kg</span></div>`}
- <div class=row><a class="mid vid" href="${esc(vidUrl(e.video))}" target=_blank rel=noopener aria-label="Ver video del ejercicio">Video</a>${sinD?'<span class="mid nodesc">Sin descanso</span>':d!=='—'?`<button class="mid bi" data-act=timerI data-a="${i}">${ic('descanso')}${esc(d)}</button>`:''}</div>
- <div class="row nav3"><button class="mid nb arr" data-act=done data-a=-1 aria-label=Anterior>${ic('atras')}</button><button class="mid nb arr" data-act=done data-a=1 aria-label=Siguiente>${ic('siguiente')}</button><button class="mid nb hecho bi${done?' on':''}" data-act=hecho aria-pressed=${done}>${ic('check')}Hecho</button></div>`);
+ <div class="row exb1">${sinD?'<span class="mid nodesc">Sin descanso</span>':d!=='—'?`<button class="mid bi tmr" data-act=timerI data-a="${i}">${ic('descanso')}${esc(d)}</button>`:''}<button class="mid nb hecho bi${done?' on':''}" data-act=hecho aria-pressed=${done}>${ic('check')}Hecho</button></div>
+ <div class="row exb2"><a class="mid vid" href="${esc(vidUrl(e.video))}" target=_blank rel=noopener aria-label="Ver video del ejercicio">Video</a><button class="mid arr" data-act=done data-a=-1 aria-label=Anterior>${ic('atras')}</button><button class="mid arr" data-act=done data-a=1 aria-label=Siguiente>${ic('siguiente')}</button></div>`);
+ // demo v12 (Pablo 19/10): fila grande Timer | Hecho; debajo, más chica, Video ← →
  shrinkEx()}
 // Orden de reducción de UX si el ejercicio no entra: 1) alternativa en 1 línea, 2) series 44→36px, 3) carga a 18px dentro de "Última". La nota técnica nunca se recorta (mín. 22px; fitAll la agranda hasta 44px si sobra alto).
 function shrinkEx(){const a=app(),steps=[()=>a.querySelector('.info')?.classList.add('alt1'),()=>a.querySelector('.sr')?.classList.add('c'),()=>{const c=a.querySelector('.carga'),lb=a.querySelector('.lastbox');if(!c)return;if(lb){c.classList.add('inbox');lb.appendChild(c)}else c.classList.add('s18')},()=>a.querySelector('.exg')?.classList.add('tight')];// v11: 4) separadores del bloque central a 4px
  for(const s of steps){if(!over())break;s()}}
 let TI=null;function timer(s){view=ex;clearInterval(TI);let t=s.includes('′')?parseInt(s)*60:parseInt(s);const f=()=>`${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
  h(`${topBar('Descanso')}<p class=today>Descanso</p><div class=grow style="display:flex;align-items:center;justify-content:center"><div class=tbig id=tt aria-live=polite>${f()}</div></div><button class="big acc bi" data-act=backEx>${ic('atras')}Volver al ejercicio</button>`);
- TI=setInterval(()=>{t--;const el=$('tt');if(!el)return clearInterval(TI);if(t>0)el.textContent=f();else el.innerHTML=`¡Dale! ${ic('listo','em')}`;if(t<=0){clearInterval(TI);el.style.fontSize='';el.classList.add('tdone');fitFont(el,48,90,()=>el.scrollWidth<=el.parentElement.clientWidth);navigator.vibrate&&navigator.vibrate([400,200,400])}},1000)}
-function addHist(id,kg,w){D.hist.push({blockId:BLK(),exId:id,e:nombreDe(id),r:cur.r,kg,f:new Date().toISOString(),w})}// append-only
+ TI=setInterval(()=>{t--;const el=$('tt');if(!el)return clearInterval(TI);if(t>0)el.textContent=f();else{clearInterval(TI);navigator.vibrate&&navigator.vibrate([400,200,400]);ex()}},1000)}// v12 (Pablo 19/10): al llegar a 0 vibra y vuelve solo al ejercicio, sin '¡Dale!' y sin toast (pedido del Dev Lead, la demo tenía toast); el kg tipeado viaja en cur.draft (keepDraft al abrir el timer)
+function addHist(id,kg,w){D.hist.push({blockId:BLK(),exId:id,e:nombreDe(id),r:cur.r,kg,f:new Date().toISOString(),w})}// append-only (salvo setHistKg)
+// v12 (Pablo 19/10): mismo día = misma fecha en hora LOCAL del teléfono. Si el último registro de ese ejercicio (bloque actual, con alias) es de hoy, de la misma semana,
+// tiene kg (no es un borrado) y no es migrado/aproximado, se reemplaza su kg y su hora en vez de agregar otro. Cualquier otro caso agrega (append-only).
+const dayL=f=>{const d=new Date(f);return isNaN(d)?'':d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+function setHistKg(id,kg,w){const lb=lastInBlock(id),now=new Date();if(kg!=null&&lb&&lb.kg!=null&&!lb.mig&&lb.w===w&&dayL(lb.f)===dayL(now)){lb.kg=kg;lb.f=now.toISOString();lb.e=nombreDe(id);lb.r=cur.r;return 'rep'}addHist(id,kg,w);return 'add'}
 function saveKg(){const k=$('kg');if(!k)return true;const s=k.value.trim(),id=exs(rut(cur.r))[cur.i].id,w=week(),inB=inBlock(w),Lb=logB(BLK());
  if(s===''){if(inB&&logGet(BLK(),id,w)!=null){for(const x of aliases(id))if(Lb[x])delete Lb[x][w];addHist(id,null,w);if(!save())return false;toast(`✓ Borrado (S${w})`)}return true}
- const v=num(s);if(!okKg(v)){k.classList.add('bad');k.focus();toast('Número no válido. Ej: 82,5',true);return false}
+ const v=num(s);if(!okKgEj(v)){k.classList.add('bad');k.focus();toast('Número no válido. Ej: 82,5 (0 = sin peso)',true);return false}
  if(!inB)return true
  const prev=logGet(BLK(),id,w),lb=lastInBlock(id);(Lb[id]=Lb[id]||N())[w]=v;
- if(!lb||lb.kg!==v)addHist(id,v,w);if(!save())return false;if(prev!==v){navigator.vibrate&&navigator.vibrate(30);toast(`✓ Guardado: ${fmt(v)} kg (S${w})`)}return true}
+ if(!lb||lb.kg!==v)setHistKg(id,v,w);if(!save())return false;if(prev!==v){navigator.vibrate&&navigator.vibrate(30);toast(`✓ Guardado: ${fmt(v)} kg (S${w})`)}return true}
 function done(d){if(saveKg())nav(d)}
 const completa=rid=>{cur.draft=undefined;resumen(rid);setTimeout(()=>toast('✓ Rutina completa 💪'),50)};
 // ✓ Hecho (v9): vacío (outline) si está pendiente; al tocarlo se llena (amarillo), guarda kg + marca y, tras HECHO_MS, va al siguiente PENDIENTE (dando la vuelta); si no queda ninguno → Rutina completa.
@@ -323,15 +345,19 @@ function metricas(){view=metricas;h(`${topBar('Métricas')}<h2 class=ttl2>${ic('
 // v11 (QA B-11): con títulos largos y safe-area la nota final se cortaba. Pasos, solo si no entra: 1) número 56→44, 2) número 34 y % 28,
 // 3) título 20px y tarjeta más baja, 4) título en máximo 2 líneas (último recurso; con el plan real no se usa ninguno)
 function shrinkMt(){const m=app().querySelector('.mts');if(!m)return;for(const k of['k1','k2','k3','k4']){if(!over())break;m.classList.add(k)}}
-// ---------- export CSV (bloque y exId al final de las tablas de kg; peso igual) ----------
+// ---------- export CSV (bloque y exId al final de las tablas de kg; peso igual). v12.1: rutina también por cq() en las 3 secciones (QA v12 #2);
+// la semana sale como número (+w): load3 acepta claves como «+5» (+w entre 1 y 520) y así no llegan crudas al CSV. Con datos válidos la salida es idéntica ----------
 function download(txt,name,type){const u=URL.createObjectURL(new Blob([txt],{type})),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000);navigator.clipboard?.writeText(txt).catch(()=>{})}
 const cq=s=>'"'+String(s).replace(/"/g,'""').replace(/^([=+\-@])/,"'$1")+'"';
+// v12.1 (QA v12 #3): historico_kg del CSV en orden cronológico (un reemplazo de kg el mismo día cambia f pero deja la fila en su lugar).
+// Solo para exportar: copia ordenada por instante (Date.parse) y, a igual instante, por posición original (estable). D.hist no se toca.
+const histKgOrd=()=>histKg().map((x,j)=>({x,j,t:Date.parse(x.f)})).sort((a,b)=>a.t-b.t||a.j-b.j).map(o=>o.x);
 function rutinaDe(b,id){if(b===BLK())for(const r of RUTS())if(r.ejercicios.some(e=>aliases(e.id).includes(id)))return r.id;return rutDe(b,id)}
-function exportar(){let csv='rutina,ejercicio,semana,kg,bloque,exId\n';for(const b of Object.keys(D.log))for(const id of Object.keys(D.log[b]))for(const[w,kg]of Object.entries(D.log[b][id]))csv+=`${rutinaDe(b,id)},${cq(nombreDe(id))},${w},${kg},${cq(b)},${cq(id)}\n`;
- csv+='\nhistorico_kg\nfecha,semana,rutina,ejercicio,kg,aproximada,bloque,exId\n'+histKg().map(x=>`${x.f},${x.w},${x.r},${cq(x.e)},${x.kg??''},${x.mig?1:0},${cq(x.blockId)},${cq(x.exId)}`).join('\n');
+function exportar(){let csv='rutina,ejercicio,semana,kg,bloque,exId\n';for(const b of Object.keys(D.log))for(const id of Object.keys(D.log[b]))for(const[w,kg]of Object.entries(D.log[b][id]))csv+=`${cq(rutinaDe(b,id))},${cq(nombreDe(id))},${+w},${kg},${cq(b)},${cq(id)}\n`;
+ csv+='\nhistorico_kg\nfecha,semana,rutina,ejercicio,kg,aproximada,bloque,exId\n'+histKgOrd().map(x=>`${x.f},${x.w},${cq(x.r)},${cq(x.e)},${x.kg??''},${x.mig?1:0},${cq(x.blockId)},${cq(x.exId)}`).join('\n');
  csv+='\n\nhistorico_peso\nfecha,semana_bloque,peso\n'+pesoOrd().map(x=>`${x.f},${x.w??''},${x.kg}`).join('\n')+`\n\nmeta_peso\n${D.meta}\n`;
  // v11 (QA T10): estado de Hecho en sección propia, al final para no mover las anteriores (los lectores de CSV viejos siguen andando). Una fila por ejercicio y semana marcados
- const HR=[];for(const b of Object.keys(D.hechos||{}))for(const id of Object.keys(D.hechos[b]||{}))for(const w of Object.keys(D.hechos[b][id]||{}).sort((x,y)=>x-y))if(D.hechos[b][id][w])HR.push(`${rutinaDe(b,id)},${cq(nombreDe(id))},${w},${cq(b)},${cq(id)}`);
+ const HR=[];for(const b of Object.keys(D.hechos||{}))for(const id of Object.keys(D.hechos[b]||{}))for(const w of Object.keys(D.hechos[b][id]||{}).sort((x,y)=>x-y))if(D.hechos[b][id][w])HR.push(`${cq(rutinaDe(b,id))},${cq(nombreDe(id))},${+w},${cq(b)},${cq(id)}`);
  csv+='\nhechos\nrutina,ejercicio,semana,bloque,exId\n'+HR.join('\n')+(HR.length?'\n':'');
  download(csv,'entrenamiento-respaldo.csv','text/csv');toast('✓ Respaldo descargado (y copiado)')}
 // ---------- S-1: acciones por delegación (sin onclick en línea) ----------
