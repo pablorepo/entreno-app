@@ -3,13 +3,13 @@
 (function(G){
 'use strict';
 const SCHEMAS=[1];
-const LIM={titulo:32,nombre:40,nota:150,alternativa:40,series:28,rpe:12,nombreCorto:24,objetivo:60,bloqueNombre:40,agendaTexto:15,formato:40,carga:20,tempo:10,semanaNota:60,grupo:12};
+const LIM={titulo:32,nombre:40,nota:150,series:28,rpe:12,nombreCorto:24,objetivo:60,bloqueNombre:40,agendaTexto:15,formato:40,carga:20,tempo:10,semanaNota:60,grupo:12};
 const MAXEJ=10,DIAS=['dom','lun','mar','mie','jue','vie','sab'];
 const BAD=/[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff<>`\\]/;
-const TEMPO=/^[0-9X]{1,2}(-[0-9X]{1,2}){2,3}$/,SLUG=/^[a-z0-9-]{3,40}$/,DESC=/^(\d{1,3}″|\d{1,2}′|—)$/,VID=/^[A-Za-z0-9_-]{11}$/,VIEJO=/^[A-Z]\d{1,2}$/;
+const TEMPO=/^[0-9X]{1,2}(-[0-9X]{1,2}){2,3}$/,SLUG=/^[a-z0-9-]{3,40}$/,DESC=/^(\d{1,3}″|\d{1,2}′|—)$/,VID=/^[A-Za-z0-9_-]{11}$/,VIEJO=/^[A-Z]\d{1,2}$/,EJ=/^EJ-\d{3}$/;// v1 (BACKLOG ítem 3): id de ejercicio = código del catálogo EJ-NNN; sin «alternativa»
 const IGN=['notas_coach','_ayuda','notasComunes','notaComun'];
 const KNOWN={raiz:['schema','planVersion','minApp','bloque','semanas','agenda','rutinas','retirados','renombres','defaults'],bloque:['id','numero','nombre','inicio','semanas','descarga'],
- rutina:['id','titulo','ejercicios'],ej:['id','idViejo','nombre','nombreCorto','series','descanso','rpe','alternativa','nota','video','registraKg','porSemana','omitirEn','grupo','formato','carga','tempo'],semana:['objetivo','nota'],porSemana:['series','rpe','descanso','carga','tempo','formato','nota'],dia:['rutina','texto'],defaults:['descanso']};
+ rutina:['id','titulo','ejercicios'],ej:['id','idViejo','nombre','nombreCorto','series','descanso','rpe','nota','video','registraKg','porSemana','omitirEn','grupo','formato','carga','tempo'],semana:['objetivo','nota'],porSemana:['series','rpe','descanso','carga','tempo','formato','nota'],dia:['rutina','texto'],defaults:['descanso']};
 // Privacidad (check-plan.mjs la bloquea; la app solo avisa)
 const ALLOW=new Set(['Pablo','Hack','Smith','Hammer','Scott','Pallof','Z','T','RPE','YouTube','V-squat','Hip','Remo','Press','Curl','Prensa','Jalón','Hyrox']);
 const DIAG=/diabet|hipertens|presi[oó]n alta|asma|c[aá]ncer|tumor|epileps|depresi[oó]n|ansiedad|card[ií]ac|arritmia|infarto|colesterol|tiroid|obesidad|embaraz|diagn[oó]stic|enfermedad|s[ií]ndrome|patolog/i;
@@ -89,9 +89,9 @@ function validar(o,opt){opt=opt||{};const F=[],W=[],L=[],C=[];let upd=false;cons
   if(!Array.isArray(r.ejercicios)||r.ejercicios.length<1)return f(`${P}.ejercicios: lista de 1 a ${MAXEJ}`);
   if(r.ejercicios.length>MAXEJ)f(`${P}.ejercicios: ${r.ejercicios.length} ejercicios (máx. ${MAXEJ}: con más, el resumen no entra sin scroll)`);
   let sinKg=0;r.ejercicios.forEach((e,ei)=>{const Q=`${P}.ejercicios[${ei}]`;if(!isObj(e))return f(`${Q}: tiene que ser un objeto`);unk(Q,e,KNOWN.ej);
-   if(typeof e.id!=='string'||!SLUG.test(e.id))f(`${Q}.id: slug a-z 0-9 - (3-40)`);else if(ids.has(e.id))f(`${Q}.id: "${e.id}" repetido (los id son únicos en todo el plan)`);else ids.add(e.id);
+   if(typeof e.id!=='string'||!EJ.test(e.id))f(`${Q}.id: código del catálogo EJ-NNN (ej. EJ-001)`);else if(ids.has(e.id))f(`${Q}.id: "${e.id}" repetido (los id son únicos en todo el plan)`);else ids.add(e.id);
    if(str(`${Q}.nombre`,e.nombre,LIM.nombre))nombres.set(e.nombre.trim().toLowerCase(),e.id);
-   str(`${Q}.series`,e.series,LIM.series);str(`${Q}.rpe`,e.rpe,LIM.rpe);str(`${Q}.alternativa`,e.alternativa,LIM.alternativa);str(`${Q}.nota`,e.nota,LIM.nota,{minLen:0});
+   str(`${Q}.series`,e.series,LIM.series);str(`${Q}.rpe`,e.rpe,LIM.rpe);str(`${Q}.nota`,e.nota,LIM.nota,{minLen:0});
    if(e.descanso===undefined){if(!(isObj(o.defaults)&&o.defaults.descanso))f(`${Q}.descanso: falta (o definí defaults.descanso)`)}else if(typeof e.descanso!=='string'||!DESC.test(e.descanso))f(`${Q}.descanso: formato 90″, 2′ o —`);
    if(typeof e.video!=='string'||!VID.test(e.video))f(`${Q}.video: solo el id de 11 caracteres de YouTube (nunca una URL ni una búsqueda)`);
    if(e.registraKg!==undefined&&typeof e.registraKg!=='boolean')f(`${Q}.registraKg: true o false`);if(e.registraKg===false)sinKg++;
@@ -123,9 +123,9 @@ function validar(o,opt){opt=opt||{};const F=[],W=[],L=[],C=[];let upd=false;cons
   for(const r of rids)if(!usadas.has(r))w(`rutina ${r}: no tiene ningún día en la agenda`)}
  // 15: defaults, retirados, renombres
  if(o.defaults!==undefined){if(!isObj(o.defaults))f('defaults: objeto');else{unk('defaults',o.defaults,KNOWN.defaults);if(o.defaults.descanso!==undefined&&(typeof o.defaults.descanso!=='string'||!DESC.test(o.defaults.descanso)))f('defaults.descanso: formato 90″, 2′ o —')}}
- const ret=o.retirados===undefined?[]:o.retirados;if(!Array.isArray(ret)||ret.some(x=>typeof x!=='string'||!SLUG.test(x)))f('retirados: lista de id');
+ const ret=o.retirados===undefined?[]:o.retirados;if(!Array.isArray(ret)||ret.some(x=>typeof x!=='string'||!(EJ.test(x)||SLUG.test(x))))f('retirados: lista de id (EJ-NNN o id viejo)');
  const ren=o.renombres===undefined?{}:o.renombres;if(!isObj(ren))f('renombres: objeto {"id-viejo":"id-nuevo"}');
- else for(const[k,v]of Object.entries(ren)){if(!SLUG.test(k)||typeof v!=='string'||!SLUG.test(v))f(`renombres.${k}: id inválido`);else if(!ids.has(v))f(`renombres.${k}: el destino "${v}" no está en el plan`);else if(ids.has(k))f(`renombres.${k}: el id viejo sigue en el plan`);
+ else for(const[k,v]of Object.entries(ren)){if(!(SLUG.test(k)||EJ.test(k))||typeof v!=='string'||!EJ.test(v))f(`renombres.${k}: id inválido ("id viejo": "EJ-NNN")`);else if(!ids.has(v))f(`renombres.${k}: el destino "${v}" no está en el plan`);else if(ids.has(k))f(`renombres.${k}: el id viejo sigue en el plan`);
   let x=v,seen=new Set([k]);while(own(ren,x)){if(seen.has(x)){f(`renombres: ciclo en "${k}"`);break}seen.add(x);x=ren[x]}}
  // 17: id que desaparece con datos en el mismo bloque
  if(opt.datos&&isObj(b)&&opt.datos.blockId===b.id){const decl=new Set([...(Array.isArray(ret)?ret:[]),...(isObj(ren)?Object.keys(ren):[])]);

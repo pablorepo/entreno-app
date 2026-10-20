@@ -1,7 +1,8 @@
-// Versionado de caché: subir C en CADA publicación de app (entreno-v10 → entreno-v11 …). Ver README "Publicar una versión nueva".
+// Versionado de caché: C cambia en CADA publicación de app y nunca repite un nombre ya usado (entreno-app, entreno-v3…v13, entreno-v10-1 están usados).
+// v1 (Dev Lead 19/10): 'entreno-r13' (r = release, 13 = APP_VERSION interno). Ver README "Publicar una versión nueva".
 // plan.json NO requiere bump: va por red primero (S-2); Coach solo sube planVersion.
-const C='entreno-v12',F=['./','index.html','app.js','validar-plan.js','plan.json','manifest.json','icon.svg','icon-192.png','icon-512.png'],TO=3000;
-const NETFIRST=['/','/index.html','/app.js','/validar-plan.js','/sw.js','/plan.json'];
+const C='entreno-r13',F=['./','index.html','app.css','app.js','validar-plan.js','plan.json','manifest.json','icon.svg','icon-192.png','icon-512.png','apple-touch-icon.png'],TO=3000;
+const NETFIRST=['/','/index.html','/app.css','/app.js','/validar-plan.js','/sw.js','/plan.json'];
 self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll(F.map(f=>new Request(f,{cache:'reload'}))))));
 // Sin skipWaiting automático: la app muestra "Versión nueva → Actualizar" (solo en Inicio/Resumen) y manda este mensaje.
 self.addEventListener('message',e=>{if(e.data==='skipWaiting')self.skipWaiting()});
