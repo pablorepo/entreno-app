@@ -177,3 +177,9 @@ td,th{border-color:var(--linea)}
 .grow.aj>*{flex:none;margin-top:0!important;margin-bottom:0!important}
 .lnk{display:block;margin:0 auto;min-height:56px;min-width:56px;padding:0 var(--s16);background:none;border:0;color:var(--amarillo);font-size:var(--t22);font-weight:700;text-decoration:underline;text-underline-offset:4px}
 .u-mt8{margin-top:8px!important}
+
+/* App 1.0: franja respaldo (ux/respaldo-aviso-v1, #ff3b30) */
+.av-block{display:flex;flex-direction:column;align-items:stretch;flex:none;gap:0;margin:0}
+.av-rb{display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;min-height:64px;padding:12px 14px;margin:0;border:3px solid #ff3b30;border-radius:16px;background:var(--sup,#1a1a1a);color:var(--blanco,#fff);font-size:26px;font-weight:700;text-align:left;line-height:1.2;cursor:pointer}
+.av-rb .ic{flex:none;width:28px;height:28px;color:#ff3b30}.av-rb-t{flex:1;min-width:0}
+.av-no{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;margin:0;padding:0 14px;background:none;border:0;color:var(--amarillo,#ffd400);font-size:22px;font-weight:700;text-decoration:underline;text-underline-offset:4px;cursor:pointer}

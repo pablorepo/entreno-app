@@ -1,666 +1,534 @@
 {
- "schema": 1,
- "planVersion": 8,
- "minApp": "13.0",
- "notas_coach": "Plan del bloque 1. No cambiar los códigos. Subir planVersion en cada cambio. Plan v2 (26/10): descansos de hack, jalón, press inclinado y rumano de 2′ a 90″.",
- "notasComunes": {
-  "rodilla": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, acortá el rango o bajá la carga.",
-  "muneca": "Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá."
- },
- "bloque": {
-  "id": "bloque-01",
-  "numero": 1,
-  "nombre": "Máquinas: hipertrofia + resistencia",
-  "inicio": "2026-10-19",
-  "semanas": 6,
-  "descarga": [
-   6
-  ]
- },
- "retirados": [
-  "EJ-004",
-  "EJ-006",
-  "EJ-014",
-  "EJ-017",
-  "EJ-024"
- ],
- "renombres": {
-  "hack-squat": "EJ-001",
-  "prensa-45": "EJ-002",
-  "curl-femoral-acostado": "EJ-003",
-  "abductora": "EJ-005",
-  "gemelos-sentado": "EJ-007",
-  "pallof-press": "EJ-008",
-  "elevacion-rodillas-silla-romana": "EJ-009",
-  "jalon-discos": "EJ-010",
-  "press-inclinado-hammer": "EJ-011",
-  "remo-t-pecho-apoyado": "EJ-012",
-  "press-hombros-maquina": "EJ-013",
-  "laterales-polea": "EJ-015",
-  "curl-scott-z": "EJ-016",
-  "muneca-polea": "EJ-018",
-  "prensa-explosiva": "EJ-019",
-  "hip-thrust-maquina": "EJ-020",
-  "rumano-smith": "EJ-021",
-  "remo-polea-baja-un-brazo": "EJ-022",
-  "hiperextension-45": "EJ-023",
-  "rotadora-tronco": "EJ-025",
-  "final-bike-eliptico": "EJ-026"
- },
- "semanas": {
-  "1": {
-   "objetivo": "RPE 6-7: encontrá las cargas"
+  "schema": 1,
+  "planVersion": "1.0",
+  "minApp": "1.0",
+  "notas_coach": "Plan 1.0 del bloque 1. No cambiar los códigos. En cada cambio menor subir a 1.1, 1.2, etc.",
+  "notasComunes": {
+    "rodilla": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, acortá el rango o bajá la carga.",
+    "muneca": "Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá."
   },
-  "2": {
-   "objetivo": "RPE 7-8"
-  },
-  "3": {
-   "objetivo": "Si llegás al tope de reps, subí carga"
-  },
-  "4": {
-   "objetivo": "Con drop set en la última serie: bajá 25% y seguí"
-  },
-  "5": {
-   "objetivo": "Semana pico 💥 RPE 8, la última serie a 9"
-  },
-  "6": {
-   "objetivo": "Mitad de series, RPE 6",
-   "nota": "Sin el final. Técnica perfecta."
-  }
- },
- "agenda": {
-  "dom": {
-   "texto": "Descanso"
-  },
-  "lun": {
-   "rutina": "A"
-  },
-  "mar": {
-   "texto": "Funcional"
-  },
-  "mie": {
-   "rutina": "B"
-  },
-  "jue": {
-   "texto": "Hyrox"
-  },
-  "vie": {
-   "rutina": "C"
-  },
-  "sab": {
-   "texto": "Salida"
-  }
- },
- "rutinas": [
-  {
-   "id": "A",
-   "titulo": "A · Piernas y core",
-   "ejercicios": [
-    {
-     "id": "EJ-001",
-     "idViejo": "A0",
-     "nombre": "Hack squat",
-     "series": "4×10",
-     "descanso": "90″",
-     "rpe": "7-8",
-     "nota": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, acortá el rango o bajá la carga.",
-     "video": "NEyKZhc5u5A",
-     "notaComun": "rodilla",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "5": {
-       "rpe": "8"
-      },
-      "6": {
-       "series": "2×10",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-002",
-     "idViejo": "A1",
-     "nombre": "Prensa 45°",
-     "series": "3×12",
-     "descanso": "90″",
-     "rpe": "8",
-     "nota": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, acortá el rango o bajá la carga.",
-     "video": "KdT2g0iSdG0",
-     "notaComun": "rodilla",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "5": {
-       "rpe": "8"
-      },
-      "6": {
-       "series": "2×12",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-003",
-     "idViejo": "A2",
-     "nombre": "Curl femoral acostado",
-     "series": "4×10-12",
-     "descanso": "60″",
-     "rpe": "8",
-     "nota": "Cadera pegada al banco, subida y bajada controladas.",
-     "video": "9xbBr5Ytl8c",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "4": {
-       "carga": "Con drop set -25%"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×10-12",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-005",
-     "idViejo": "A4",
-     "nombre": "Abductora",
-     "series": "3×15",
-     "descanso": "45″",
-     "rpe": "8",
-     "nota": "Espalda apoyada, abrí controlado y pausá afuera.",
-     "video": "2vCRMi-lgJ4",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "4": {
-       "carga": "Con drop set -25%"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×15",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-007",
-     "idViejo": "A6",
-     "nombre": "Gemelos sentado con discos",
-     "series": "3×15",
-     "descanso": "45″",
-     "rpe": "8-9",
-     "nota": "Estirá abajo, pausa arriba.",
-     "video": "rfkYC-mbQus",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "4": {
-       "carga": "Con drop set -25%"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×15",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-008",
-     "idViejo": "A7",
-     "nombre": "Pallof press en polea",
-     "series": "3×10 por lado",
-     "descanso": "45″",
-     "rpe": "7",
-     "nota": "Que el tronco no gire. Brazos al frente y volvé lento. Sin pausa entre lados.",
-     "video": "W8Yf1uyUnoM",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "5": {
-       "rpe": "7-8"
-      },
-      "6": {
-       "series": "2×10 por lado",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-009",
-     "idViejo": "A8",
-     "nombre": "Elevación de rodillas en silla romana",
-     "series": "3×12",
-     "descanso": "45″",
-     "rpe": "8",
-     "nota": "Sin balanceo, subí las rodillas al pecho. Con medball, anotá su peso; sin peso, dejá el kg vacío.",
-     "video": "DLy3kDFJxes",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×12",
-       "rpe": "6"
-      }
-     }
-    }
-   ],
-   "notas_coach": "nota va siempre literal y completa; notaComun es solo una etiqueta para check-plan.mjs (la app la ignora)."
-  },
-  {
-   "id": "B",
-   "titulo": "B · Espalda, hombros y brazos",
-   "ejercicios": [
-    {
-     "id": "EJ-010",
-     "idViejo": "B0",
-     "nombre": "Jalón con discos",
-     "series": "4×8-10",
-     "descanso": "90″",
-     "rpe": "8",
-     "nota": "Pecho arriba, bajá hacia el pecho. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá.",
-     "video": "ZBxTTC9SSbA",
-     "notaComun": "muneca",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×8-10",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-011",
-     "idViejo": "B1",
-     "nombre": "Press inclinado con discos (Hammer)",
-     "series": "4×8-10",
-     "descanso": "90″",
-     "rpe": "7-8",
-     "nota": "Escápulas juntas, bajada controlada. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá.",
-     "video": "YM90BrbZIBM",
-     "notaComun": "muneca",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×8-10",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-012",
-     "idViejo": "B2",
-     "nombre": "Remo T con pecho apoyado",
-     "series": "4×10",
-     "descanso": "90″",
-     "rpe": "8",
-     "nota": "Pecho pegado al apoyo, tirá con los codos.",
-     "video": "GEgmkhrQgUM",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×10",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-013",
-     "idViejo": "B3",
-     "nombre": "Press de hombros en máquina",
-     "series": "3×10",
-     "descanso": "60″",
-     "rpe": "7-8",
-     "nota": "Sin arquear la espalda. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá.",
-     "video": "NjZy28n8Qto",
-     "notaComun": "muneca",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "4": {
-       "carga": "Con drop set -25%"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×10",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-016",
-     "idViejo": "B6",
-     "nombre": "Curl Scott con barra Z",
-     "series": "3×10",
-     "descanso": "60″",
-     "rpe": "8",
-     "nota": "Agarrá la parte angulada. Bajada lenta. Si molesta la muñeca, bajá la carga.",
-     "video": "JtWyDc6U1pU",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "4": {
-       "carga": "Con drop set -25%"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×10",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-018",
-     "idViejo": "B8",
-     "nombre": "Muñeca en polea, liviano (flexión y extensión)",
-     "series": "2×15",
-     "descanso": "45″",
-     "rpe": "6-7",
-     "nota": "Liviano y lento. Serie 1: flexión (palma arriba). Serie 2: extensión (palma abajo). Si duele u hormiguea la muñeca, cortá.",
-     "video": "VvL6HKZuR6U",
-     "porSemana": {
-      "6": {
-       "series": "2×10",
-       "rpe": "6"
-      }
-     },
-     "carga": "Siempre liviana",
-     "nombreCorto": "Muñeca en polea liviano"
-    },
-    {
-     "id": "EJ-015",
-     "idViejo": "B5",
-     "nombre": "Laterales en polea",
-     "series": "3×12-15",
-     "descanso": "45″",
-     "rpe": "8-9",
-     "nota": "Subí hasta el hombro, sin impulso.",
-     "video": "OXLuvI4GF7E",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "4": {
-       "carga": "Con drop set -25%"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×12-15",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    }
-   ]
-  },
-  {
-   "id": "C",
-   "titulo": "C · Cadena posterior y potencia",
-   "ejercicios": [
-    {
-     "id": "EJ-019",
-     "idViejo": "C0",
-     "nombre": "Prensa explosiva",
-     "series": "4×6",
-     "descanso": "90″",
-     "rpe": "6-7",
-     "nota": "Bajá controlado y empujá lo más rápido posible, sin despegar los pies ni trabar las rodillas. Rodilla alineada con el pie.",
-     "video": "KdT2g0iSdG0",
-     "porSemana": {
-      "6": {
-       "series": "2×6",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     },
-     "carga": "Moderada"
-    },
-    {
-     "id": "EJ-020",
-     "idViejo": "C1",
-     "nombre": "Hip thrust en máquina",
-     "series": "4×10",
-     "descanso": "90″",
-     "rpe": "8",
-     "nota": "Pausa arriba, apretá glúteos, mentón al pecho.",
-     "video": "gdUC0EFGWfQ",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×10",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-021",
-     "idViejo": "C2",
-     "nombre": "Rumano en Smith",
-     "series": "3×10",
-     "descanso": "90″",
-     "rpe": "7-8",
-     "nota": "Cadera atrás, espalda neutra, barra cerca de las piernas.",
-     "video": "EZX8CYKTSSk",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×10",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-022",
-     "idViejo": "C3",
-     "nombre": "Remo en polea baja a un brazo",
-     "series": "3×10 por lado",
-     "descanso": "60″",
-     "rpe": "8",
-     "nota": "Tirá con el codo, sin girar el tronco.",
-     "video": "C7rxEp-078I",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "4": {
-       "carga": "Con drop set -25%"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×10 por lado",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-023",
-     "idViejo": "C4",
-     "nombre": "Hiperextensión 45°",
-     "series": "3×12",
-     "descanso": "60″",
-     "rpe": "7-8",
-     "nota": "Pausa arriba. Con disco al pecho cuando la domines: anotá el disco; sin disco, dejá el kg vacío.",
-     "video": "MpBAD9a3uD4",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "4": {
-       "carga": "Con disco: drop set"
-      },
-      "5": {
-       "rpe": "8 (última 9)"
-      },
-      "6": {
-       "series": "2×12",
-       "rpe": "6"
-      }
-     }
-    },
-    {
-     "id": "EJ-025",
-     "idViejo": "C6",
-     "nombre": "Rotadora de tronco",
-     "series": "3×10 por lado",
-     "descanso": "45″",
-     "rpe": "7",
-     "nota": "Giro lento y controlado. Sin pausa entre lados.",
-     "video": "4xMcrAd7VKY",
-     "porSemana": {
-      "1": {
-       "rpe": "6-7"
-      },
-      "5": {
-       "rpe": "7-8"
-      },
-      "6": {
-       "series": "2×10 por lado",
-       "rpe": "6",
-       "carga": "Bajá 25% la carga"
-      }
-     }
-    },
-    {
-     "id": "EJ-026",
-     "idViejo": "C7",
-     "nombre": "Final: assault bike o elíptico",
-     "series": "8×(30″ fuerte / 30″ suave)",
-     "descanso": "—",
-     "rpe": "8",
-     "nota": "30″ fuerte y 30″ suave, sin parar. Sin impacto.",
-     "video": "Jtg4Rxag4BU",
-     "registraKg": false,
-     "porSemana": {
-      "1": {
-       "rpe": "7"
-      },
-      "2": {
-       "rpe": "7-8"
-      },
-      "5": {
-       "rpe": "8-9"
-      }
-     },
-     "omitirEn": [
+  "bloque": {
+    "id": "bloque-01",
+    "numero": 1,
+    "nombre": "Plan 1.0 · hipertrofia + deporte",
+    "inicio": "2026-10-26",
+    "semanas": 6,
+    "descarga": [
       6
-     ],
-     "nombreCorto": "Final: bike o elíptico"
+    ]
+  },
+  "retirados": [
+    "EJ-004",
+    "EJ-005",
+    "EJ-006",
+    "EJ-007",
+    "EJ-009",
+    "EJ-014",
+    "EJ-017",
+    "EJ-019",
+    "EJ-024",
+    "EJ-026"
+  ],
+  "renombres": {
+    "hack-squat": "EJ-001",
+    "prensa-45": "EJ-002",
+    "curl-femoral-acostado": "EJ-003",
+    "pallof-press": "EJ-008",
+    "jalon-discos": "EJ-010",
+    "press-inclinado-hammer": "EJ-011",
+    "remo-t-pecho-apoyado": "EJ-012",
+    "press-hombros-maquina": "EJ-013",
+    "laterales-polea": "EJ-015",
+    "curl-scott-z": "EJ-016",
+    "muneca-polea": "EJ-018",
+    "hip-thrust-maquina": "EJ-020",
+    "rumano-smith": "EJ-021",
+    "remo-polea-baja-un-brazo": "EJ-022",
+    "hiperextension-45": "EJ-023",
+    "rotadora-tronco": "EJ-025"
+  },
+  "semanas": {
+    "1": {
+      "objetivo": "RPE 7-8: cargas que ya conocés"
+    },
+    "2": {
+      "objetivo": "RPE 7-8"
+    },
+    "3": {
+      "objetivo": "Si llegás al tope de reps, subí carga"
+    },
+    "4": {
+      "objetivo": "Con drop set en la última serie: bajá 25% y seguí"
+    },
+    "5": {
+      "objetivo": "Semana pico · RPE 8; aislamientos última a 9"
+    },
+    "6": {
+      "objetivo": "Mitad de series, RPE 6",
+      "nota": "Técnica perfecta."
     }
-   ]
-  }
- ]
+  },
+  "agenda": {
+    "dom": {
+      "texto": "Descanso"
+    },
+    "lun": {
+      "rutina": "A"
+    },
+    "mar": {
+      "texto": "Funcional"
+    },
+    "mie": {
+      "rutina": "B"
+    },
+    "jue": {
+      "texto": "Hyrox"
+    },
+    "vie": {
+      "texto": "Descanso"
+    },
+    "sab": {
+      "texto": "Salida"
+    }
+  },
+  "rutinas": [
+    {
+      "id": "A",
+      "titulo": "A · Piernas y empuje",
+      "ejercicios": [
+        {
+          "id": "EJ-001",
+          "nombre": "Hack squat",
+          "series": "4×10",
+          "descanso": "90″",
+          "rpe": "7-8",
+          "nota": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, acortá el rango o bajá la carga.",
+          "video": "NEyKZhc5u5A",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8"
+            },
+            "6": {
+              "series": "2×10",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "notaComun": "rodilla",
+          "idViejo": "A0"
+        },
+        {
+          "id": "EJ-003",
+          "nombre": "Curl femoral acostado",
+          "series": "3×12",
+          "descanso": "60″",
+          "rpe": "8",
+          "nota": "Cadera pegada al banco, subida y bajada controladas.",
+          "video": "9xbBr5Ytl8c",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8 (última 9)"
+            },
+            "6": {
+              "series": "2×12",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            },
+            "4": {
+              "carga": "Con drop set -25%"
+            }
+          },
+          "idViejo": "A2"
+        },
+        {
+          "id": "EJ-020",
+          "nombre": "Hip thrust en máquina",
+          "series": "3×10",
+          "descanso": "90″",
+          "rpe": "8",
+          "nota": "Pausa arriba, apretá glúteos, mentón al pecho.",
+          "video": "gdUC0EFGWfQ",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8"
+            },
+            "6": {
+              "series": "2×10",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "idViejo": "C1"
+        },
+        {
+          "id": "EJ-011",
+          "nombre": "Press inclinado con discos (Hammer)",
+          "series": "4×10",
+          "descanso": "90″",
+          "rpe": "7-8",
+          "nota": "Escápulas juntas, bajada controlada. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá.",
+          "video": "YM90BrbZIBM",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8"
+            },
+            "6": {
+              "series": "2×10",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "notaComun": "muneca",
+          "idViejo": "B1"
+        },
+        {
+          "id": "EJ-012",
+          "nombre": "Remo T con pecho apoyado",
+          "series": "3×10",
+          "descanso": "75″",
+          "rpe": "8",
+          "nota": "Pecho pegado al apoyo, tirá con los codos.",
+          "video": "GEgmkhrQgUM",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8 (última 9)"
+            },
+            "6": {
+              "series": "2×10",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "idViejo": "B2"
+        },
+        {
+          "id": "EJ-015",
+          "nombre": "Laterales en polea",
+          "series": "3×15",
+          "descanso": "45″",
+          "rpe": "8-9",
+          "nota": "Subí hasta el hombro, sin impulso.",
+          "video": "OXLuvI4GF7E",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8 (última 9)"
+            },
+            "6": {
+              "series": "2×15",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            },
+            "4": {
+              "carga": "Con drop set -25%"
+            }
+          },
+          "idViejo": "B5"
+        },
+        {
+          "id": "EJ-008",
+          "nombre": "Pallof press en polea",
+          "series": "3×10 por lado",
+          "descanso": "45″",
+          "rpe": "8",
+          "nota": "Que el tronco no gire. Brazos al frente y volvé lento. Sin pausa entre lados.",
+          "video": "W8Yf1uyUnoM",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8 (última 9)"
+            },
+            "6": {
+              "series": "2×10 por lado",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "idViejo": "A7"
+        },
+        {
+          "id": "EJ-018",
+          "nombre": "Muñeca en polea, liviano (flexión y extensión)",
+          "series": "2×15",
+          "descanso": "30″",
+          "rpe": "6-7",
+          "nota": "Liviano y lento. Serie 1: flexión (palma arriba). Serie 2: extensión (palma abajo). Si duele u hormiguea la muñeca, cortá.",
+          "video": "VvL6HKZuR6U",
+          "porSemana": {
+            "1": {
+              "rpe": "6-7"
+            },
+            "6": {
+              "series": "2×10",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "idViejo": "B8"
+        }
+      ]
+    },
+    {
+      "id": "B",
+      "titulo": "B · Posterior y jalón",
+      "ejercicios": [
+        {
+          "id": "EJ-021",
+          "nombre": "Rumano en Smith",
+          "series": "4×10",
+          "descanso": "90″",
+          "rpe": "7-8",
+          "nota": "Cadera atrás, espalda neutra, barra cerca de las piernas.",
+          "video": "EZX8CYKTSSk",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8"
+            },
+            "6": {
+              "series": "2×10",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "idViejo": "C2"
+        },
+        {
+          "id": "EJ-002",
+          "nombre": "Prensa 45°",
+          "series": "3×12",
+          "descanso": "90″",
+          "rpe": "7-8",
+          "nota": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, acortá el rango o bajá la carga.",
+          "video": "KdT2g0iSdG0",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8"
+            },
+            "6": {
+              "series": "2×12",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "notaComun": "rodilla",
+          "idViejo": "A1"
+        },
+        {
+          "id": "EJ-010",
+          "nombre": "Jalón con discos",
+          "series": "4×10",
+          "descanso": "90″",
+          "rpe": "8",
+          "nota": "Pecho arriba, bajá hacia el pecho. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá.",
+          "video": "ZBxTTC9SSbA",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8"
+            },
+            "6": {
+              "series": "2×10",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "notaComun": "muneca",
+          "idViejo": "B0"
+        },
+        {
+          "id": "EJ-013",
+          "nombre": "Press de hombros en máquina",
+          "series": "3×10",
+          "descanso": "75″",
+          "rpe": "8",
+          "nota": "Sin arquear la espalda. Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá.",
+          "video": "NjZy28n8Qto",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8 (última 9)"
+            },
+            "6": {
+              "series": "2×10",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "idViejo": "B3"
+        },
+        {
+          "id": "EJ-022",
+          "nombre": "Remo en polea baja a un brazo",
+          "series": "3×10 por lado",
+          "descanso": "60″",
+          "rpe": "8",
+          "nota": "Tirá con el codo, sin girar el tronco.",
+          "video": "C7rxEp-078I",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8 (última 9)"
+            },
+            "6": {
+              "series": "2×10 por lado",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "idViejo": "C3"
+        },
+        {
+          "id": "EJ-023",
+          "nombre": "Hiperextensión 45°",
+          "series": "3×12",
+          "descanso": "60″",
+          "rpe": "8",
+          "nota": "Pausa arriba. Con disco al pecho cuando la domines: anotá el disco; sin disco, dejá el kg vacío.",
+          "video": "MpBAD9a3uD4",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8 (última 9)"
+            },
+            "6": {
+              "series": "2×12",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            },
+            "4": {
+              "carga": "Con drop set -25%"
+            }
+          },
+          "idViejo": "C4"
+        },
+        {
+          "id": "EJ-016",
+          "nombre": "Curl Scott con barra Z",
+          "series": "3×10",
+          "descanso": "60″",
+          "rpe": "8",
+          "nota": "Agarrá la parte angulada. Bajada lenta. Si molesta la muñeca, bajá la carga.",
+          "video": "JtWyDc6U1pU",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8 (última 9)"
+            },
+            "6": {
+              "series": "2×10",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            },
+            "4": {
+              "carga": "Con drop set -25%"
+            }
+          },
+          "idViejo": "B6"
+        },
+        {
+          "id": "EJ-025",
+          "nombre": "Rotadora de tronco",
+          "series": "3×12",
+          "descanso": "45″",
+          "rpe": "8-9",
+          "nota": "Giro lento y controlado. Sin pausa entre lados.",
+          "video": "4xMcrAd7VKY",
+          "porSemana": {
+            "1": {
+              "rpe": "7-8"
+            },
+            "2": {
+              "rpe": "7-8"
+            },
+            "5": {
+              "rpe": "8 (última 9)"
+            },
+            "6": {
+              "series": "2×12",
+              "rpe": "6",
+              "carga": "Bajá 25% la carga"
+            }
+          },
+          "idViejo": "C6"
+        }
+      ]
+    }
+  ]
 }

@@ -62,7 +62,9 @@ function validar(o,opt){opt=opt||{};const F=[],W=[],L=[],C=[];let upd=false;cons
   else if(typeof v==='string'){if(k!=='video')IT.push([p,v,SLUGK.test(k)||/^plan\.(retirados|renombres)/.test(p)?'slug':'texto']);if(BAD.test(v))f(`${p}: caracteres no permitidos (control, invisibles/bidi, < > \` \\)`);else if(v!==v.trim()&&!/\.nota$/.test(p))w(`${p}: espacios al principio o al final`)}})(o,'plan');
  if(!Number.isInteger(o.schema)||!SCHEMAS.includes(o.schema)){if(Number.isInteger(o.schema)&&o.schema>Math.max(...SCHEMAS))upd=true;f(upd?'Plan para una versión nueva: actualizá la app':'schema: falta o no es soportado')}
  if(o.minApp!==undefined){if(typeof o.minApp!=='string'||!/^\d+\.\d+$/.test(o.minApp))f('minApp: formato "8.0"');else if(opt.appVersion&&verCmp(opt.appVersion,o.minApp)<0){upd=true;f('Plan para una versión nueva: actualizá la app')}}
- if(!Number.isInteger(o.planVersion)||o.planVersion<1)f('planVersion: entero ≥ 1');
+ // App 1.0: planVersion Vx.y (número 1.0 / string "1.0" / entero ≥1). Comparación numérica major.minor.
+ const pvOk=(()=>{const v=o.planVersion;if(Number.isInteger(v)&&v>=1)return true;if(typeof v==='number'&&Number.isFinite(v)&&v>=1){const s=String(v);return/^\d+(\.\d+)?$/.test(s)}if(typeof v==='string'&&/^\d+(\.\d+)?$/.test(v)){const n=parseFloat(v);return Number.isFinite(n)&&n>=1}return false})();
+ if(!pvOk)f('planVersion: Vx.y (número o texto "1.0", major ≥ 1)');
  unk('plan',o,KNOWN.raiz);
  // 5-9: bloque
  const b=o.bloque;let N=0;
@@ -136,5 +138,5 @@ function validar(o,opt){opt=opt||{};const F=[],W=[],L=[],C=[];let upd=false;cons
   for(const[id,nom]of pids)if(!ids.has(id)&&!(isObj(ren)&&own(ren,id))){const nuevo=typeof nom==='string'&&nombres.get(nom.trim().toLowerCase());if(nuevo)w(`"${nom}": cambió el id ${id} → ${nuevo} sin "renombres" (se corta el historial)`)}
   if(pv.bloque.inicio!==b.inicio)w('cambió la fecha de inicio del bloque en curso')}
  return{fatal:F,warn:W,largos:L,check:C,unk:U,priv:privacidad(IT,opt),upd}}
-G.validarPlan=validar;G.validarPlanInfo={SCHEMAS,LIM,MAXEJ,fnv};
+G.validarPlan=validar;G.validarPlanInfo={SCHEMAS,LIM,MAXEJ,fnv};G.verCmp=verCmp;
 })(typeof self!=='undefined'?self:globalThis);

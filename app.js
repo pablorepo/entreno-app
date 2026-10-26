@@ -1,9 +1,11 @@
 // entreno-app v8 — el plan vive en plan.json (lo edita Coach); acá queda solo la app. Diseño: plan-vs-app.md (FINAL).
-const APP_VERSION='13';// INTERNO (monotónico, string): lo compara el validador contra "minApp" del plan. Subir en cada versión de la app.
-// v1 (BACKLOG ítem 5, Dev Lead 19/10): lo VISIBLE va aparte. App «Versión 1»; plan «v1» = planVersion − PLAN_BASE (planVersion 7 = Plan v1; sigue creciendo: 8 = v2…).
-const APP_LABEL='1',PLAN_BASE=6,planLabel=pv=>String(Math.max(1,pv-PLAN_BASE));
+const APP_VERSION='1.0';// INTERNO = visible (Vx.y). Lo compara el validador contra minApp del plan ("1.0").
+// App 1.0 (BACKLOG 26/10): pie «Plan 1.0 · App 1.0». planLabel muestra planVersion tal cual (string/número Vx.y).
+const APP_LABEL='1.0',planLabel=pv=>{const s=String(pv??'');return/^\d+(\.\d+)?$/.test(s)?s:s||'—'};
 // Nombre visible de la app: cambiarlo SOLO acá (y en manifest.json name/short_name; ver README).
 const APP_NAME='Entreno';document.title=APP_NAME;
+// App 1.0: prefijo gt1_* (generación nueva). No se lee ni migra gt_data3/gt_data. Historial viejo no se arrastra.
+const K_DATA='gt1_data',K_PLAN='gt1_plan_ok',K_BAD='gt1_data_bad',K_EXPORT='gt1_last_export';
 const DC=['dom','lun','mar','mié','jue','vie','sáb'],DN=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],DK=['dom','lun','mar','mie','jue','vie','sab'];
 // Migración v2→v3 sin depender de plan.json: ids viejos del bloque 1 → slug + nombre (QA §5.5)
 const B1='bloque-01',B1_START=new Date(2026,9,19),MAPB1={"A0":["hack-squat","Hack squat o péndulo"],"A1":["prensa-45","Prensa 45°"],"A2":["curl-femoral-acostado","Curl femoral acostado"],"A3":["extension-cuadriceps","Extensión de cuádriceps 90°→30°"],"A4":["abductora","Abductora"],"A5":["aductora","Aductora"],"A6":["gemelos-sentado","Gemelos sentado con discos"],"A7":["pallof-press","Pallof press en polea"],"A8":["elevacion-rodillas-silla-romana","Elevación de rodillas en silla romana"],"B0":["jalon-discos","Jalón con discos"],"B1":["press-inclinado-hammer","Press inclinado con discos (Hammer)"],"B2":["remo-t-pecho-apoyado","Remo T con pecho apoyado"],"B3":["press-hombros-maquina","Press de hombros en máquina"],"B4":["pec-deck-invertido","Pec deck invertido"],"B5":["laterales-polea","Laterales en polea"],"B6":["curl-scott-z","Curl Scott con barra Z"],"B7":["triceps-polea","Tríceps en polea"],"B8":["muneca-polea","Muñeca en polea, liviano (flexión y extensión)"],"C0":["prensa-explosiva","Prensa explosiva"],"C1":["hip-thrust-maquina","Hip thrust en máquina"],"C2":["rumano-smith","Rumano en Smith"],"C3":["remo-polea-baja-un-brazo","Remo en polea baja a un brazo"],"C4":["hiperextension-45","Hiperextensión 45°"],"C5":["patada-gluteo-maquina","Patada de glúteo en máquina"],"C6":["rotadora-tronco","Rotadora de tronco"],"C7":["final-bike-eliptico","Final: assault bike o elíptico"]};
@@ -38,7 +40,7 @@ function parseV2(o){const d=DEF2();
  const m=num(o.meta);d.meta=m>0?m:(typeof o.meta==='number'&&okKg(o.meta)?o.meta:'');
  if(!d.hist.length)for(const id of Object.keys(d.log))for(const w of Object.keys(d.log[id]).map(Number).sort((a,b)=>a-b))d.hist.push({ex:id,e:name1(id),r:id[0]||'',kg:d.log[id][w],f:wkDate1(w),w,mig:1});
  d.hist.sort((a,b)=>a.f<b.f?-1:a.f>b.f?1:0);return d}
-// ---------- datos v3 (gt_data3, por bloque + id) ----------
+// ---------- datos v3 (gt1_data App 1.0; forma = v:3) ----------
 const DEF3=()=>({v:3,migratedAt:null,log:N(),hechos:N(),hist:[],nombres:N(),rutas:N(),peso:[],meta:'',v2sig:'',v2hechos:[],v2meta:'',ej:null,desc:N()});// v1: ej = marca de la migración a códigos EJ-NNN; desc = semanas de descarga de cada bloque (L5)
 function legacyMapper(){const used=N(),m=N();return id=>{id=String(id);if(own(MAPB1,id))return MAPB1[id][0];if(own(m,id))return m[id];let s='legacy-'+(id.replace(/[^A-Za-z0-9]/g,'_')||'vacio'),t=s,k=2;while(own(used,t))t=s+'-'+k++;used[t]=1;return m[id]=t}}
 function toV3(d2,migratedAt){const d=DEF3(),map=legacyMapper();d.migratedAt=migratedAt;d.log[B1]=N();d.hechos[B1]=N();
@@ -68,15 +70,11 @@ function mergeV2(d,r2){let o;try{o=JSON.parse(r2)}catch(e){return 0}if(!o||typeo
  if(String(d2.meta)!==String(d.v2meta)){d.meta=d2.meta;n++}
  d.v2sig=sig(r2);d.v2hechos=hkeys2(d2);d.v2meta=d2.meta;return n}
 let DATAERR=false,STORERR=false,DIRTY=false,BADRAW='';
-function bad(raw){BADRAW=raw;try{localStorage.setItem('gt_data_bad',raw)}catch(e){}DATAERR=true;return DEF3()}
-function loadAll0(){const r3=localStorage.getItem('gt_data3'),r2=localStorage.getItem('gt_data');
- if(r3){let o;try{o=JSON.parse(r3)}catch(e){return bad(r3)}if(!o||typeof o!=='object'||Array.isArray(o))return bad(r3);
-  const d=isV2shape(o)?toV3(parseV2(o),typeof o.migratedAt==='string'?o.migratedAt:new Date().toISOString()):load3(o);if(isV2shape(o))DIRTY=true;
-  if(r2&&sig(r2)!==d.v2sig){mergeV2(d,r2);DIRTY=true}return d}
- if(!r2)return DEF3();
- let o;try{o=JSON.parse(r2)}catch(e){return bad(r2)}if(!o||typeof o!=='object'||Array.isArray(o))return bad(r2);
- // gt_data queda CONGELADO (es la copia cruda): esta app nunca lo escribe (S-3)
- const d2=parseV2(o),d=toV3(d2,new Date().toISOString());d.v2sig=sig(r2);d.v2hechos=hkeys2(d2);d.v2meta=d2.meta;DIRTY=true;return d}
+function bad(raw){BADRAW=raw;try{localStorage.setItem(K_BAD,raw)}catch(e){}DATAERR=true;return DEF3()}
+function loadAll0(){// App 1.0: solo gt1_data. No se lee gt_data3/gt_data (reset: historial viejo no se arrastra).
+ const r=localStorage.getItem(K_DATA);if(!r)return DEF3();
+ let o;try{o=JSON.parse(r)}catch(e){return bad(r)}if(!o||typeof o!=='object'||Array.isArray(o))return bad(r);
+ return isV2shape(o)?(DIRTY=true,toV3(parseV2(o),typeof o.migratedAt==='string'?o.migratedAt:new Date().toISOString())):load3(o)}
 // ---------- v1 (BACKLOG ítem 2): historial único por código EJ-NNN ----------
 // Mapa del catálogo de Coach (catalogo-ejercicios.json → migracionKg.deSlugACodigo, 26 slugs). idViejo (A0…C7) = MAPB1 → slug → código.
 // Definición Dev Lead 19/10: cada id viejo (slug o idViejo) se reemplaza por su código en cualquier bloque. Un código queda igual.
@@ -124,12 +122,12 @@ function migrarEJ(d){const rep={cambios:0,conflictos:[],dup:[],sinMapear:[],alia
 // v1 (H13): gt_data3_premig se escribe UNA sola vez, en la primera migración; si ya existe no se toca y nunca se crean gt_data3_premig_<ms>.
 function bakEJ(r3){try{if(localStorage.getItem(BAK_EJ)!=null)return BAK_EJ;const t=Date.now();localStorage.setItem(BAK_EJ,r3);if(localStorage.getItem(BAK_EJ)!==r3)return null;
  try{localStorage.setItem(BAK_EJ+'_fecha',new Date(t).toISOString())}catch(e){}return BAK_EJ}catch(e){return null}}
-function loadAll(){const r3=localStorage.getItem('gt_data3'),d=loadAll0();if(DATAERR||!needsEJ(d))return d;
- let bak=null;if(r3!=null){bak=bakEJ(r3);if(!bak){EJFAIL=true;STORERR=true;DIRTY=false;console.warn('migración EJ: no se pudo guardar el respaldo; gt_data3 queda como estaba');return d}}
- const rep=migrarEJ(d);EJREP=rep;d.ej={v:1,at:new Date().toISOString(),src:r3!=null?'gt_data3':'gt_data',bak:[...new Set([...(d.ej?d.ej.bak:[]),...(bak?[bak]:[])])],sinMapear:rep.sinMapear};
- if(rep.sinMapear.length||rep.conflictos.length||rep.dup.length)console.warn('migración EJ: sin mapear',rep.sinMapear,'conflictos',rep.conflictos,'duplicados (queda el más reciente)',rep.dup);DIRTY=true;return d}
+function loadAll(){const d=loadAll0();if(DATAERR||!needsEJ(d))return d;
+ // App 1.0: si un gt1_data importado aún trae ids viejos, se migran en memoria (sin premig de generación anterior).
+ const rep=migrarEJ(d);EJREP=rep;d.ej={v:1,at:new Date().toISOString(),src:K_DATA,bak:[],sinMapear:rep.sinMapear};
+ if(rep.sinMapear.length||rep.conflictos.length||rep.dup.length)console.warn('migración EJ: sin mapear',rep.sinMapear,'conflictos',rep.conflictos,'duplicados',rep.dup);DIRTY=true;return d}
 let D=DEF3(),cur=null,view=null;
-function saveRaw(){try{localStorage.setItem('gt_data3',JSON.stringify(D));return true}catch(e){return false}}
+function saveRaw(){try{localStorage.setItem(K_DATA,JSON.stringify(D));return true}catch(e){return false}}
 function save(){if(saveRaw())return true;toast('No se pudo guardar (memoria llena o modo privado)',true);return false}// QA-08
 // ---------- helpers por id (con alias de "renombres" en el bloque actual) ----------
 function aliases(id){const ids=[id];const ren=PL&&PL.renombres||{};let add=true;while(add){add=false;for(const[de,a]of Object.entries(ren))if(ids.includes(a)&&!ids.includes(de)){ids.push(de);add=true}}return ids}
@@ -225,11 +223,11 @@ function keepDraft(){const k=$('kg');if(k&&cur)cur.draft=k.value}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)keepDraft();else REG&&REG.update().catch(()=>{})});
 function dataError(){view=dataError;h(`<div class=grow><div class=wk>${ic('alerta','em')}</div><h1 class=today>No se pudieron leer los datos guardados.</h1><p class=u-f22mt10>Guardé una copia. Podés exportarla o empezar de cero.</p></div>
  <button class="big bi" data-act=exportBad>${ic('exportar')}Exportar copia</button><button class="big acc bi" data-act=resetData>${ic('borrar')}Empezar de cero</button>`)}
-function exportBad(){download(localStorage.getItem('gt_data_bad')||BADRAW||'','entrenamiento-copia-datos.txt','text/plain');toast('✓ Copia exportada')}
+function exportBad(){download(localStorage.getItem(K_BAD)||BADRAW||'','entrenamiento-copia-datos.txt','text/plain');toast('✓ Copia exportada')}
 function storageError(){view=storageError;h(`<div class=grow><div class=wk>${ic('alerta','em')}</div><h1 class=today>No hay espacio para guardar los datos.</h1><p class=u-f22mt10>Tus datos están cargados, pero no se pudieron guardar en el celular. Exportá un respaldo ahora.</p></div>
  <button class="big acc bi" data-act=exportar>${ic('exportar')}Exportar respaldo</button><button class="big bi" data-act=storeOk>Seguir igual${ic('siguiente')}</button>`)}
 // Borrar todos los datos (v10): pantalla de confirmación + confirm() final. Borra kilos, hechos, historial, peso, meta y copias viejas (gt_data3, gt_data, gt_data_bad).
-// NO toca el plan (gt_plan_ok).
+// NO toca el plan (gt1_plan_ok).
 function borrarTodo(){view=borrarTodo;h(`${topBar()}<h1 class=ttl>${ic('borrar')}Borrar todos los datos</h1><div class=grow>
  <p class=u-f22m8>Se borran <b>todos</b> tus registros de este celular: kilos, ejercicios hechos, historial, peso corporal y meta.</p>
  <p class="muted u-m8">No se puede deshacer. Si querés guardar una copia, exportá un respaldo antes.</p>
@@ -239,11 +237,12 @@ let BORRANDO=false;
 async function borrarSi(){if(BORRANDO)return;if(!confirm('¿Seguro? Se borran todos los datos de la app y no se pueden recuperar.'))return;
  BORRANDO=true;try{
  // QA A-1: se borra TODA clave gt_* salvo el plan (gt_plan_ok): gt_data3, gt_data, gt_data_bad, gt_data_v*_backup (v7/v7.1) y cualquier otra
- try{const KEEP=new Set(['gt_plan_ok']);for(const k of Object.keys(localStorage))if(k.startsWith('gt_')&&!KEEP.has(k))localStorage.removeItem(k)}catch(e){}
+ // App 1.0: borra gt1_* salvo el plan (K_PLAN). No toca generación vieja gt_* (queda huérfana a propósito).
+ try{const KEEP=new Set([K_PLAN]);for(const k of Object.keys(localStorage))if(k.startsWith('gt1_')&&!KEEP.has(k))localStorage.removeItem(k)}catch(e){}
  D=DEF3();cur=null;BADRAW='';DATAERR=false;if(!save())return;home();toast('✓ Datos borrados')}finally{BORRANDO=false}}
 function resetData(){if(!confirm('¿Empezar de cero? La copia de los datos viejos queda guardada.'))return;D=DEF3();if(save()){DATAERR=false;home()}}
 // ---------- plan.json: carga, validación y fallback (plan-vs-app.md §4) ----------
-function planOk(){try{const o=JSON.parse(localStorage.getItem('gt_plan_ok')||'null');if(o&&o.plan&&!validarPlan(o.plan,{appVersion:APP_VERSION}).fatal.length)return o.plan}catch(e){}return null}
+function planOk(){try{const o=JSON.parse(localStorage.getItem(K_PLAN)||'null');if(o&&o.plan&&!validarPlan(o.plan,{appVersion:APP_VERSION}).fatal.length)return o.plan}catch(e){}return null}
 function dataIds(b){const s=new Set();for(const k of['log','hechos'])for(const[id,ws]of Object.entries(D[k][b]||{}))if(Object.keys(ws).length)s.add(id);for(const x of histKg())if(x.blockId===b)s.add(x.exId);return s}
 function applyPlan(o){PL=o;START=isoDay(o.bloque.inicio);let ch=false;
  const dk=JSON.stringify(o.bloque.descarga||[]);if(JSON.stringify(D.desc[o.bloque.id]||null)!==dk){D.desc[o.bloque.id]=[...(o.bloque.descarga||[])];ch=true}// L5
@@ -260,14 +259,16 @@ async function loadPlan(){let res,txt,fromCache=false;
  let o;try{o=JSON.parse(txt)}catch(e){return planFail('plan.json no es JSON válido')}
  const prev=planOk(),b=o&&o.bloque&&o.bloque.id;
  // v1 (BACKLOG ítem 7, H5 + definición Dev Lead 19/10): un plan con planVersion MENOR al vigente, o IGUAL con otro contenido, se rechaza en silencio
- // (console.warn, sin banner ni toast, gt_plan_ok sin tocar), venga de la red o de la caché. Igual e idéntico: no se hace nada.
- if(prev&&o&&typeof o==='object'&&Number.isInteger(o.planVersion)){if(o.planVersion<prev.planVersion){console.warn('plan.json: planVersion',o.planVersion,'menor que el vigente',prev.planVersion,'(se ignora)');PLERR=null;return true}
-  if(o.planVersion===prev.planVersion&&JSON.stringify(o)!==JSON.stringify(prev)){console.warn('plan.json: mismo planVersion',o.planVersion,'con otro contenido (se ignora)');PLERR=null;return true}}
+ // (console.warn, sin banner ni toast, gt1_plan_ok sin tocar), venga de la red o de la caché. Igual e idéntico: no se hace nada.
+ // App 1.0 H5: planVersion Vx.y (string/número). Menor → rechazo; igual con contenido distinto → rechazo + console.warn; igual e idéntico → nada.
+ if(prev&&o&&typeof o==='object'&&o.planVersion!=null&&prev.planVersion!=null){const cmp=(typeof verCmp==='function'?verCmp:((a,b)=>{const x=String(a).split('.').map(Number),y=String(b).split('.').map(Number);return(x[0]-y[0])||((x[1]||0)-(y[1]||0))}));
+  const c=cmp(o.planVersion,prev.planVersion);if(c<0){console.warn('plan.json: planVersion',o.planVersion,'menor que el vigente',prev.planVersion,'(se ignora)');PLERR=null;return true}
+  if(c===0&&JSON.stringify(o)!==JSON.stringify(prev)){console.warn('plan.json: mismo planVersion',o.planVersion,'con otro contenido (se ignora)');PLERR=null;return true}}
  const v=validarPlan(o,{appVersion:APP_VERSION,datos:{blockId:b,ids:[...dataIds(b)].filter(id=>EJRE.test(id))},prev});// v1: un id sin match (no EJ) nunca bloquea el plan
  if(v.fatal.length)return planFail(v.fatal[0],v.upd);
  PLWARN=[...v.warn,...v.largos,...v.check,...v.priv];PLWARN.forEach(x=>console.warn('plan.json (aviso):',x));
  const changed=!prev||JSON.stringify(prev)!==JSON.stringify(o);
- try{localStorage.setItem('gt_plan_ok',JSON.stringify({plan:o,planVersion:o.planVersion,at:new Date().toISOString()}))}catch(e){}
+ try{localStorage.setItem(K_PLAN,JSON.stringify({plan:o,planVersion:o.planVersion,at:new Date().toISOString()}))}catch(e){}
  PLERR=null;if(changed&&prev)PLTOAST='✓ Plan actualizado: Bloque '+o.bloque.numero;
  if(!PL||!ROUTINE)applyPlan(o);else PLNEXT=o;return true}
 function retryPlan(){loadPlan().then(ok=>{if(ok)toast('✓ Plan cargado');if(!PL)return noPlan();home()})}
@@ -285,21 +286,34 @@ function ajustes(){view=ajustes;h(`${topBar()}<h1 class="ttl pej-ttl">${ic('ajus
  <button class=lnk data-act=exportar>Exportar CSV</button></div>
  ${AJ_HOOK.importar()}
  <button class="big del bi u-mt16" data-act=borrarTodo>${ic('borrar')}Borrar todos los datos</button>
- <p class="muted sm2 u-mt12">Versión ${APP_LABEL}${PL?` · Plan v${planLabel(PL.planVersion)} · Bloque ${PL.bloque.numero}`:''}</p>${PLERR?`<p class="err sm2">${ic('alerta')} Plan: ${esc(PLERR.msg)}</p>`:''}</div>`)}// ux/import-v1: pie «Versión 1 · Plan v1 · Bloque 1», sin avisos técnicos (los avisos del plan van solo a console.warn)
+ <p class="muted sm2 u-mt12">${PL?`Plan ${planLabel(PL.planVersion)} · App ${APP_LABEL}`:`App ${APP_LABEL}`}</p>${PLERR?`<p class="err sm2">${ic('alerta')} Plan: ${esc(PLERR.msg)}</p>`:''}</div>`)}// App 1.0: pie «Plan 1.0 · App 1.0» (sin Bloque; avisos del plan solo a console.warn)
 const wtxt=w=>`Semana ${w} de ${NW()}${w<=NW()&&isDesc(w)?' · Descarga':''}`;
 function wlabel(){return wtxt(week())}
 // demo v12 (Pablo 19/10): Inicio arriba a la izquierda solo con el ícono de la casita (56×56, aria-label)
 const topBar=(t)=>`<div class=top><button class="back bi home1" data-act=home aria-label=Inicio>${ic('inicio')}</button><span class=wl>${wlabel()}</span></div>${t?`<h1 class=vh>${esc(t)}</h1>`:''}`;
+// ---------- franja respaldo (App 1.0 = ux/respaldo-aviso-v1, BACKLOG 26/10) ----------
+// Visible en Inicio si hay datos y ≥7 días sin exportar JSON (o nunca). «Ahora no» = solo sesión. Toque = mismo JSON que Exportar respaldo.
+const RESP_DIAS=7;let AV_HIDE=false;
+function hayDatosResp(){try{if(D.meta!==''&&D.meta!=null)return true;if((D.peso||[]).length)return true;if((D.hist||[]).some(x=>!x.tipo&&x.kg!=null))return true;
+ for(const b of Object.values(D.hechos||{}))for(const ex of Object.values(b||{}))if(Object.keys(ex||{}).length)return true;
+ for(const b of Object.values(D.log||{}))for(const ex of Object.values(b||{}))if(Object.keys(ex||{}).length)return true}catch(e){}return false}
+function diasSinExport(){try{const t=localStorage.getItem(K_EXPORT);if(!t)return Infinity;const ms=Date.now()-Date.parse(t);if(isNaN(ms)||ms<0)return Infinity;return Math.floor(ms/86400000)}catch(e){return Infinity}}
+function avVisible(){return!AV_HIDE&&hayDatosResp()&&diasSinExport()>=RESP_DIAS}
+function avTxt(){const d=diasSinExport();return!isFinite(d)?'Descargar respaldo':`Descargar respaldo · hace ${d} día${d===1?'':'s'}`}
+function avNo(){AV_HIDE=true;home()}
 // ---------- home ----------
 function home(){ROUTINE=false;if(PLNEXT){applyPlan(PLNEXT);PLNEXT=null}if(!PL)return noPlan();view=home;
- const w=week(),dw=new Date().getDay(),ag=PL.agenda[DK[dw]]||{},B=banners();
+ const w=week(),dw=new Date().getDay(),ag=PL.agenda[DK[dw]]||{},B=banners(),AV=avVisible();
  const wt=wtxt(w),we=wEff();
- const wn=PL.semanas&&PL.semanas[we]&&PL.semanas[we].nota?`<p class="wnote${B.n>1?' one':''}">${esc(noEmo(PL.semanas[we].nota))}</p>`:'';
- const obj=B.n<2&&PL.semanas&&PL.semanas[we]?`<p class=obj>${ic('meta')} ${esc(noEmo(PL.semanas[we].objetivo))}</p>`:'';
- h(`${B.html}<p class=brand>${APP_NAME}</p><h1 class=wk>${wt}</h1><p class="blk opt">Bloque ${PL.bloque.numero} · ${esc(PL.bloque.nombre)}</p><p class=ini>Inicio del plan: ${DC[START.getDay()]} ${dmShort(START)}/${START.getFullYear()}</p>${obj}${wn}
- <p class=today>Hoy (${DN[dw]}): <b>${esc(ag.rutina?'Rutina '+ag.rutina:ag.texto||'')}</b></p><div class=grow></div>
+ // Con franja visible se omiten ini/obj/nota (ux/respaldo-aviso-v1) para que Inicio entre con safe-area sin achicar A/B/C.
+ const wn=AV?'':(PL.semanas&&PL.semanas[we]&&PL.semanas[we].nota?`<p class="wnote${B.n>1?' one':''}">${esc(noEmo(PL.semanas[we].nota))}</p>`:'');
+ const obj=AV?'':(B.n<2&&PL.semanas&&PL.semanas[we]?`<p class=obj>${ic('meta')} ${esc(noEmo(PL.semanas[we].objetivo))}</p>`:'');
+ h(`${B.html}<p class=brand>${APP_NAME}</p><h1 class=wk>${wt}</h1><p class="blk opt">Bloque ${PL.bloque.numero} · ${esc(PL.bloque.nombre)}</p>${AV?'':`<p class=ini>Inicio del plan: ${DC[START.getDay()]} ${dmShort(START)}/${START.getFullYear()}</p>`}${obj}${wn}
+ <p class=today>Hoy (${DN[dw]}): <b>${esc(ag.rutina?'Rutina '+ag.rutina:ag.texto||'')}</b></p>
+ ${AV?`<div class=av-block><button type=button class="av-rb bi" data-act=exportarJSON aria-label="Descargar respaldo">${ic('exportar')}<span class=av-rb-t>${esc(avTxt())}</span></button>
+ <button type=button class="av-no" data-act=avNo>Ahora no</button></div>`:''}<div class=grow></div>
  ${RUTS().map(r=>`<button class="big ${r.id===ag.rutina?'acc':''}" data-act=resumen data-a="${esc(r.id)}">${esc(r.titulo)}</button>`).join('')}
- <div class="hgrid${B.n>1?' b2':''}"><button class="mid bi" data-act=peso>${ic('peso')}Peso</button><button class="mid bi" data-act=hist>${ic('historial')}Historial</button><button class="mid bi" data-act=metricas>${ic('metricas')}Métricas</button><button class="mid bi" data-act=ajustes>${ic('ajustes')}Ajustes</button></div><p class=ver>Versión ${APP_LABEL}</p>`);
+ <div class="hgrid${B.n>1?' b2':''}"><button class="mid bi" data-act=peso>${ic('peso')}Peso</button><button class="mid bi" data-act=hist>${ic('historial')}Historial</button><button class="mid bi" data-act=metricas>${ic('metricas')}Métricas</button><button class="mid bi" data-act=ajustes>${ic('ajustes')}Ajustes</button></div><p class=ver>Plan ${planLabel(PL.planVersion)} · App ${APP_LABEL}</p>`);
  if(PLTOAST){toast(PLTOAST,false,{plan:true,dur:2500});PLTOAST=null}}
 // ---------- resumen + guía ----------
 const firstPending=r=>{const w=week();return inBlock(w)?exs(r).findIndex(e=>!isDone(e.id,w)):0};
@@ -317,7 +331,7 @@ function grupoDe(E,i){const g=E[i].grupo;if(!g)return null;let a=i,b=i;while(a>0
 const descDe=e=>e.descanso??(PL.defaults&&PL.defaults.descanso)??'—';
 const vidUrl=id=>'https://www.youtube.com/watch?v='+encodeURIComponent(String(id||''));
 const nextPending=(r,i,w)=>{const n=exs(r).length;for(let k=1;k<n;k++){const j=(i+k)%n;if(!isDone(exs(r)[j].id,w))return j}return -1};
-function ex(){const r=rut(cur.r);if(!r)return home();ROUTINE=true;view=ex;const E=exs(r);if(cur.i>=E.length)cur.i=E.length-1;const i=cur.i,e0=E[i],e=eff(e0),G=grupoDe(E,i),w=week(),inB=inBlock(w),L=lastKg(e.id),done=inB&&isDone(e.id,w),val=cur.draft??fmt(prefillKg(e.id)??''),d=G&&!G.ultimo?'—':descDe(e);
+function ex(){const r=rut(cur.r);if(!r)return home();ROUTINE=true;view=ex;const E=exs(r);if(cur.i>=E.length)cur.i=E.length-1;const i=cur.i,e0=E[i],e=eff(e0),G=grupoDe(E,i),w=week(),inB=inBlock(w),L=lastKg(e.id),done=inB&&isDone(e.id,w),val=cur.draft??'',d=G&&!G.ultimo?'—':descDe(e);
  const sinD=G&&!G.ultimo;
  // UX v8 (ux-revision.md "Campos nuevos del plan"): superserie en la fila .st; tempo en la línea de descanso/RPE; carga en línea propia; formato solo sin kg
  const ssTxt=G?esc(G.otros.map(corto).join(' y ')):'',ssLab=G?`aria-label="Superserie con ${ssTxt}"`:'';
@@ -349,13 +363,14 @@ function addHist(id,kg,w){D.hist.push({blockId:BLK(),exId:id,e:nombreDe(id),r:cu
 const dayL=f=>{const d=new Date(f);return isNaN(d)?'':d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
 function setHistKg(id,kg,w){const lb=lastInBlock(id),now=new Date();if(kg!=null&&lb&&lb.kg!=null&&!lb.mig&&lb.w===w&&dayL(lb.f)===dayL(now)){lb.kg=kg;lb.f=now.toISOString();lb.e=nombreDe(id);lb.r=cur.r;return 'rep'}addHist(id,kg,w);return 'add'}
 // v1 (ítem 10): saveKg(sv) guarda un valor que no está en pantalla (el borrador del timer al salir con la casita); si no es válido no hace nada (queda el borrador)
+// App 1.0 (BACKLOG 26/10): solo graba kg con Hecho + valor tipeado (0 = sin peso). Vacío = no toca kg. Flechas/casita/salir no llaman saveKg.
 function saveKg(sv){const k=$('kg');if(!k&&sv===undefined)return true;const s=String(sv!==undefined?sv:k.value).trim(),id=exs(rut(cur.r))[cur.i].id,w=week(),inB=inBlock(w),Lb=logB(BLK());
- if(s===''){if(inB&&logGet(BLK(),id,w)!=null){for(const x of aliases(id))if(Lb[x])delete Lb[x][w];addHist(id,null,w);if(!save())return false;toast(`✓ Borrado (S${w})`)}return true}
- const v=num(s);if(!okKgEj(v)){if(!k||sv!==undefined)return true;k.classList.add('bad');k.focus();toast('Número no válido. Ej: 82,5 (0 = sin peso)',true);return false}
- if(!inB)return true
+ if(s==='')return true;// vacío: no graba ni borra
+ const v=num(s);if(!okKgEj(v)){if(k&&sv===undefined){k.classList.add('bad');k.focus()}toast('Número no válido. Ej: 82,5 (0 = sin peso)',true);return false}
+ if(!inB)return true;
  const prev=logGet(BLK(),id,w),lb=lastInBlock(id);(Lb[id]=Lb[id]||N())[w]=v;
  if(!lb||lb.kg!==v)setHistKg(id,v,w);if(!save())return false;if(prev!==v){navigator.vibrate&&navigator.vibrate(30);toast(`✓ Guardado: ${fmt(v)} kg (S${w})`)}return true}
-function done(d){if(saveKg())nav(d)}
+function done(d){nav(d)}// App 1.0: flechas no graban kg
 const completa=rid=>{cur.draft=undefined;resumen(rid);setTimeout(()=>toast('✓ Rutina completa 💪'),50)};
 // ✓ Hecho (v9): vacío (outline) si está pendiente; al tocarlo se llena (amarillo), guarda kg + marca y, tras HECHO_MS, va al siguiente PENDIENTE (dando la vuelta); si no queda ninguno → Rutina completa.
 // Las flechas ← → solo guardan kg y navegan: NUNCA marcan hecho. Al volver a un ejercicio hecho el botón se ve lleno.
@@ -379,14 +394,15 @@ const sgn=x=>(x>0?'+':x<0?'−':'±')+fmt(Math.round(Math.abs(x)*100)/100);
 function peso(pg=0){view=()=>peso(pg);const O=pesoOrd(),L=O.map((x,j)=>({...x,p:j?O[j-1].kg:null})).reverse(),n=Math.max(1,Math.ceil(L.length/PPG));pg=Math.min(Math.max(0,pg),n-1);const u=O.at(-1);
  // v11: el registro de peso se mudó de Inicio a esta pantalla (mismo input #pk y misma acción addP)
  h(`${topBar('Peso')}<h1 class=ttl>${ic('peso')}Peso</h1>
- <div class="row prow"><label for=pk>Nuevo<small>kg</small></label><input id=pk class=meta inputmode=decimal value="${u?fmt(u.kg):''}" placeholder="kg"><button class="mid bi" data-act=addP>${ic('check')}Guardar</button></div>
+ <div class="row prow"><label for=pk>Nuevo<small>kg</small></label><input id=pk class=meta inputmode=decimal value="" placeholder="kg"><button class="mid bi" data-act=addP>${ic('check')}Guardar</button></div>
  <div class="row prow"><label for=meta>Meta<small>kg</small></label><input id=meta class=meta inputmode=decimal value="${esc(fmt(D.meta))}" placeholder="—"><button class="mid bi" data-act=setMeta>${ic('check')}Guardar</button></div>
  ${u&&O.length>1?`<p class=info>Desde el primero: <b>${sgn(u.kg-O[0].kg)} kg</b>${D.meta?` · Faltan <b>${fmt(Math.round(Math.abs(u.kg-D.meta)*100)/100)} kg</b>`:''}</p>`:''}
  <ul class="cl grow">${L.slice(pg*PPG,pg*PPG+PPG).map(x=>`<li><span class=muted>${dmy(x.f)}${x.w?' · S'+x.w:''}</span> <b>${fmt(x.kg)} kg</b><br><span class=muted>${x.p!=null?`vs anterior ${sgn(x.kg-x.p)}`:'primer registro'}${D.meta?` · vs meta ${sgn(x.kg-D.meta)}`:''}</span></li>`).join('')||'<li>Sin registros. Cargá tu peso arriba.</li>'}</ul>
  ${n>1?`<div class=row><button class=mid data-act=peso data-a="${pg-1}" ${pg?'':'disabled'} aria-label="Más nuevos">${ic('izq')}</button><span class="mid pgl">${pg+1}/${n}</span><button class=mid data-act=peso data-a="${pg+1}" ${pg<n-1?'':'disabled'} aria-label="Más viejos">${ic('der')}</button></div>`:''}`)}
 const dayKey=f=>new Date(f).toDateString();
-function addP(){const el=$('pk'),v=num(el.value);if(!okKg(v)){el.classList.add('bad');return toast('Número no válido. Ej: 82,5',true)}const f=new Date().toISOString(),u=pesoOrd().at(-1);
- if(u&&u.kg===v&&dayKey(u.f)===dayKey(f))return toast(`✓ Ya estaba guardado: ${fmt(v)} kg`);
+function addP(){const el=$('pk'),v=num(el.value);if(!okKg(v)){el.classList.add('bad');return toast('Número no válido. Ej: 82,5',true)}const f=new Date().toISOString(),O=pesoOrd(),u=O.at(-1);
+ // App 1.0: mismo día (local) pisa el registro real en D.peso (pesoOrd() es copia); cuadro arranca vacío.
+ if(u&&dayKey(u.f)===dayKey(f)){const real=D.peso[u.j];real.kg=v;real.f=f;real.w=wTag(f);if(save()){toast(`✓ Peso actualizado: ${fmt(v)} kg`);peso()}return}
  D.peso.push({kg:v,f,w:wTag(f)});if(save()){toast(`✓ Peso guardado: ${fmt(v)} kg`);peso()}}
 function setMeta(){const s=$('meta').value.trim(),v=num(s);if(s&&!okKg(v)){$('meta').classList.add('bad');return toast('Número no válido. Ej: 82,5',true)}D.meta=s?v:'';if(save()){toast('✓ Guardado');peso()}}
 // ---------- historial por bloque ----------
@@ -527,9 +543,8 @@ function pesoEjSel(pg){
 // ---------- S-1: acciones por delegación (sin onclick en línea) ----------
 // v1 (ítem 10): salir con la casita desde el ejercicio guarda el kg tipeado igual que las flechas (si no es válido, avisa y no sale); desde el timer guarda el borrador
 // Solo si el kg fue tocado: un prellenado sin tocar (semana sin dato) no se guarda.
-const kgTocado=v=>{const r=cur&&rut(cur.r),e=r&&exs(r)[cur.i];if(!e)return false;const w=week();return String(v).trim()!==fmt(prefillKg(e.id)??'')||logGet(BLK(),e.id,w)!=null};
-const ACT={home:()=>{if(view===ex&&cur){const k=$('kg');if(k){if(kgTocado(k.value)&&!saveKg())return}else if(cur.draft!=null&&kgTocado(cur.draft))saveKg(cur.draft)}clearInterval(TI);TEND=0;home()},backEx:()=>{clearInterval(TI);TEND=0;ex()},timerI:a=>{const r=cur&&rut(cur.r),e=r&&exs(r)[+a];if(e){keepDraft();timer(descDe(eff(e)))}},storeOk:()=>{STORERR=false;afterBoot()},
- hist:a=>{if(a==null)HWP=null;hist(a)},histPg:a=>{HWP=Math.max(0,+a);hist(HCUR)},cambios:a=>cambios(a),peso:a=>peso(+a||0),pesoEj:a=>{if(view===ex&&!saveKg())return;pesoEj(a)},pesoEjPg:a=>{PEJPG=Math.max(0,+a);pesoEj(PEJ,PEJPG)},pesoEjSelPg:a=>{PEXPG=Math.max(0,+a);pesoEjSel(PEXPG)},resumen:a=>rut(a)&&resumen(a),start:a=>start(a),goEx:a=>goEx(a),done:a=>done(+a),
+const ACT={home:()=>{clearInterval(TI);TEND=0;cur&&(cur.draft=undefined);home()},backEx:()=>{clearInterval(TI);TEND=0;ex()},timerI:a=>{const r=cur&&rut(cur.r),e=r&&exs(r)[+a];if(e){keepDraft();timer(descDe(eff(e)))}},storeOk:()=>{STORERR=false;afterBoot()},avNo:()=>avNo(),
+ hist:a=>{if(a==null)HWP=null;hist(a)},histPg:a=>{HWP=Math.max(0,+a);hist(HCUR)},cambios:a=>cambios(a),peso:a=>peso(+a||0),pesoEj:a=>{if(cur)cur.draft=undefined;pesoEj(a)},pesoEjPg:a=>{PEJPG=Math.max(0,+a);pesoEj(PEJ,PEJPG)},pesoEjSelPg:a=>{PEXPG=Math.max(0,+a);pesoEjSel(PEXPG)},resumen:a=>rut(a)&&resumen(a),start:a=>start(a),goEx:a=>goEx(a),done:a=>done(+a),
  actualizar,addP,ajustes,metricas,exportBad,exportar,hecho,resetData,borrarTodo,borrarSi,setMeta,retryPlan,importar,impOk,exportarJSON};
 document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-act]');if(!b||b.disabled||!own(ACT,b.dataset.act))return;e.preventDefault();ACT[b.dataset.act](b.dataset.a)});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('[role=button][data-act]:not(button)')){e.preventDefault();e.target.click()}});
@@ -540,11 +555,11 @@ if('serviceWorker'in navigator){navigator.serviceWorker.register('sw.js').then(r
  reg.addEventListener('updatefound',()=>{const n=reg.installing;n&&n.addEventListener('statechange',()=>{if(n.state==='installed')chk()})})}).catch(()=>{});
  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloading)location.reload()})}
 // ---------- v1 (BACKLOG ítem 6, H4): persistencia + respaldo JSON importable. SOLO LÓGICA: la UI (ux/import-v1) espera el OK de Pablo ----------
-// Formato (lo que arma exportBackupJSON y lo que acepta impValidar): {"formato":"entreno-respaldo","v":1,"app":"13","at":ISO,"claves":{"gt_data3":"<texto crudo>","gt_data":"<texto crudo>"}}
-// Las claves van como TEXTO crudo de localStorage → la ida y vuelta es byte a byte. impValidar también acepta el objeto gt_data3 suelto (formato de la demo).
+// Formato (lo que arma exportBackupJSON y lo que acepta impValidar): {"formato":"entreno-respaldo","v":2,"app":"1.0","at":ISO,"claves":{"gt1_data":"<texto crudo>"}}
+// Las claves van como TEXTO crudo de localStorage → la ida y vuelta es byte a byte. impValidar también acepta el objeto gt1_data / v:3 suelto. Respaldo de generación vieja (gt_data3) se RECHAZA.
 // Puede llevar el código EJ-NNN (D4: el respaldo JSON es el único lugar permitido); la vista previa nunca lo muestra.
 function pedirPersistencia(){try{const s=navigator.storage;if(s&&s.persist)(s.persisted?s.persisted():Promise.resolve(false)).then(p=>p||navigator.storage.persist()).catch(()=>{})}catch(e){}}
-const RESP_FMT='entreno-respaldo',RESP_V=1,RESP_KEYS=['gt_data3','gt_data'],RESP_MAX=5*1024*1024,IMP_COPIA='gt_backup_import',IMP_COPIA2='gt_backup_import_2';// H13: las 2 últimas copias (rotación)
+const RESP_FMT='entreno-respaldo',RESP_V=2,RESP_KEYS=[K_DATA],RESP_MAX=5*1024*1024,IMP_COPIA='gt1_backup_import',IMP_COPIA2='gt1_backup_import_2';// App 1.0: v2 del formato, solo gt1_data; rotación 2 copias
 function exportBackupJSON(){const claves={};for(const k of RESP_KEYS){const v=localStorage.getItem(k);if(v!=null)claves[k]=v}return JSON.stringify({formato:RESP_FMT,v:RESP_V,app:APP_VERSION,at:new Date().toISOString(),claves})}
 const isO=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
 const atomosD=d=>{let n=0;for(const k of['log','hechos'])if(isO(d[k]))for(const exs of Object.values(d[k]))if(isO(exs))for(const ws of Object.values(exs))if(isO(ws))n+=Object.keys(ws).length;return n+(Array.isArray(d.hist)?d.hist.length:0)+(Array.isArray(d.peso)?d.peso.length:0)};
@@ -570,15 +585,17 @@ function normFechas(o,legacy){const F=(x,k,opt)=>{if(!x||typeof x!=='object')ret
 // 1) validar: texto → {ok:true,claves,datos} | {ok:false,err}. No toca nada.
 function impValidar(txt){const no=(err,k='estructura')=>({ok:false,err,k});if(typeof txt!=='string')return no('No es un archivo de texto.','roto');if(txt.length>RESP_MAX)return no('El archivo es demasiado grande.','grande');
  let o;try{o=JSON.parse(txt)}catch(e){return no('El archivo está dañado (no es JSON).','roto')}if(!isO(o))return no('No es un respaldo de Entreno.');
- let claves;if(o.formato===RESP_FMT){if(o.v!==RESP_V)return no('Respaldo de una versión nueva: actualizá la app.');if(!isO(o.claves))return no('No es un respaldo de Entreno.');claves={};
-  for(const[k,v]of Object.entries(o.claves)){if(!RESP_KEYS.includes(k))return no('El respaldo tiene datos desconocidos.');if(typeof v!=='string')return no('No es un respaldo de Entreno.');claves[k]=v}}
- else if(o.v===3)claves={gt_data3:txt};else return no('No es un respaldo de Entreno.');
- if(typeof claves.gt_data3!=='string')return no('El respaldo no tiene datos.');
- let d3;try{d3=JSON.parse(claves.gt_data3)}catch(e){return no('El archivo está dañado.')}
- if(isO(d3)){const t0=JSON.stringify(d3);if(!normFechas(d3))return no('Una fecha no es válida: no es un respaldo de la app.','roto');if(JSON.stringify(d3)!==t0)claves.gt_data3=JSON.stringify(d3)}// H11: lo que se escribe es lo normalizado; sin cambios queda el texto original (byte a byte)
+ // App 1.0: solo gt1_data (formato v2). Generación vieja (gt_data3/gt_data, formato v1) se RECHAZA.
+ let claves;if(o.formato===RESP_FMT){if(!isO(o.claves))return no('No es un respaldo de Entreno.');
+  if(o.claves.gt_data3!=null||o.claves.gt_data!=null)return no('Respaldo de una versión anterior: no se puede importar.');
+  if(typeof o.v==='number'&&o.v>RESP_V)return no('Respaldo de una versión nueva: actualizá la app.');
+  if(o.v!==RESP_V&&o.v!==1)return no('No es un respaldo de Entreno.');// v1 con solo gt1_data (hipotético) o v2
+  claves={};for(const[k,v]of Object.entries(o.claves)){if(!RESP_KEYS.includes(k))return no('El respaldo tiene datos desconocidos.');if(typeof v!=='string')return no('No es un respaldo de Entreno.');claves[k]=v}}
+ else if(o.v===3)claves={[K_DATA]:txt};else return no('No es un respaldo de Entreno.');
+ if(typeof claves[K_DATA]!=='string')return no('El respaldo no tiene datos.');
+ let d3;try{d3=JSON.parse(claves[K_DATA])}catch(e){return no('El archivo está dañado.')}
+ if(isO(d3)){const t0=JSON.stringify(d3);if(!normFechas(d3))return no('Una fecha no es válida: no es un respaldo de la app.','roto');if(JSON.stringify(d3)!==t0)claves[K_DATA]=JSON.stringify(d3)}
  if(!isO(d3)||d3.v!==3||!isO(d3.log)||!Array.isArray(d3.hist)||(d3.hechos!==undefined&&!isO(d3.hechos))||(d3.peso!==undefined&&!Array.isArray(d3.peso)))return no('No es un respaldo de Entreno.');
- if(claves.gt_data!=null){let o2;try{o2=JSON.parse(claves.gt_data)}catch(e){return no('El archivo está dañado.')}if(!isO(o2))return no('No es un respaldo de Entreno.');
-  const t2=JSON.stringify(o2);if(!normFechas(o2,true))return no('Una fecha no es válida: no es un respaldo de la app.','roto');if(JSON.stringify(o2)!==t2)claves.gt_data=JSON.stringify(o2)}
  const datos=load3(d3),n0=atomosD(d3),n1=atomosD(datos);if(n1<n0)return no(`El respaldo tiene ${n0-n1} registros con datos inválidos.`);
  if(!n1)return no('El respaldo está vacío.','vacio');return{ok:true,claves,datos}}
 // 2) vista previa (estructura; la pantalla la arma la UI cuando tenga el OK). Nombres, nunca códigos.
@@ -603,7 +620,8 @@ function impAplicar(val,{confirmado=false,descargar=true}={}){if(confirmado!==tr
 // Hook de Ajustes (orden de ux/import-v1: Exportar respaldo, Exportar CSV, Importar, Borrar). Para sacar solo la UI de import: revertir el commit de la rama v1-import-ui (ver README, Rollback).
 const AJ_HOOK={importar:()=>`<button class="big bi u-mt8" data-act=importar>${ic('actualizar')}Importar respaldo</button>`};// v1: UI aprobada por Pablo (ux/import-v1, resumen-4.png)
 // ---------- v1 (ítem 6): UI de «Importar respaldo» = ux/import-v1 (aprobada 19/10 19:22). Lógica: impValidar / impPreview / impAplicar ----------
-function exportarJSON(){download(exportBackupJSON(),`entreno-respaldo-${fechaArch(new Date())}.json`,'application/json',{clip:false})}
+function markExport(){try{localStorage.setItem(K_EXPORT,new Date().toISOString())}catch(e){}}
+function exportarJSON(){download(exportBackupJSON(),`entreno-respaldo-${fechaArch(new Date())}.json`,'application/json',{clip:false});markExport();AV_HIDE=false;toast('Respaldo descargado');if(view===home)home()}
 let IMP=null;
 function importar(){const i=document.createElement('input');i.type='file';i.accept='.json,application/json';i.style.display='none';
  i.onchange=()=>{const fl=i.files&&i.files[0];i.remove();if(!fl)return;if(fl.size>RESP_MAX)return impErr('grande');const r=new FileReader();r.onload=()=>impLeer(String(r.result||''));r.onerror=()=>impErr('roto');r.readAsText(fl)};
