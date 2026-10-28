@@ -1,8 +1,8 @@
 {
   "schema": 1,
-  "planVersion": "1.0",
+  "planVersion": "1.1",
   "minApp": "1.0",
-  "notas_coach": "Plan 1.0 del bloque 1. No cambiar los códigos. En cada cambio menor subir a 1.1, 1.2, etc.",
+  "notas_coach": "Plan 1.1: en B el 8/8 pasa de rotadora (EJ-025) a woodchop en polea (EJ-027). Rumano en Smith se mantiene. Los kilos de EJ-025 mapean a EJ-027 vía renombres.",
   "notasComunes": {
     "rodilla": "Bajada lenta (3″), rodilla alineada con el pie. Si duele la articulación, acortá el rango o bajá la carga.",
     "muneca": "Agarre neutro si se puede. Si duele u hormiguea la muñeca, cortá."
@@ -10,7 +10,7 @@
   "bloque": {
     "id": "bloque-01",
     "numero": 1,
-    "nombre": "Plan 1.0 · hipertrofia + deporte",
+    "nombre": "Plan 1.1 · hipertrofia + deporte",
     "inicio": "2026-10-26",
     "semanas": 6,
     "descarga": [
@@ -45,7 +45,8 @@
     "rumano-smith": "EJ-021",
     "remo-polea-baja-un-brazo": "EJ-022",
     "hiperextension-45": "EJ-023",
-    "rotadora-tronco": "EJ-025"
+    "rotadora-tronco": "EJ-027",
+    "EJ-025": "EJ-027"
   },
   "semanas": {
     "1": {
@@ -503,13 +504,13 @@
           "idViejo": "B6"
         },
         {
-          "id": "EJ-025",
-          "nombre": "Rotadora de tronco",
-          "series": "3×12",
+          "id": "EJ-027",
+          "nombre": "Woodchop en polea",
+          "series": "3×12 por lado",
           "descanso": "45″",
           "rpe": "8-9",
-          "nota": "Giro lento y controlado. Sin pausa entre lados.",
-          "video": "4xMcrAd7VKY",
+          "nota": "Polea alta, diagonal a la cadera opuesta. Giro desde el tronco, brazos extendidos.",
+          "video": "SDZBKghaE9s",
           "porSemana": {
             "1": {
               "rpe": "7-8"
@@ -521,12 +522,11 @@
               "rpe": "8 (última 9)"
             },
             "6": {
-              "series": "2×12",
+              "series": "2×12 por lado",
               "rpe": "6",
               "carga": "Bajá 25% la carga"
             }
-          },
-          "idViejo": "C6"
+          }
         }
       ]
     }
